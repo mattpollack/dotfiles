@@ -2,9 +2,9 @@
 
 vim.wo.number = true
 vim.wo.relativenumber = true
-vim.opt.tabstop = 4
-vim.opt.softtabstop = 4
-vim.opt.shiftwidth = 4
+vim.opt.tabstop = 2
+vim.opt.softtabstop = 2
+vim.opt.shiftwidth = 2
 --vim.opt.expandtab = true
 vim.opt.smartindent = true
 vim.opt.wrap = false
@@ -165,7 +165,7 @@ vim.keymap.set('n', '<leader>lt', vim.lsp.buf.type_definition, { desc = "[L]SP [
 vim.keymap.set('n', '<leader>lh', vim.lsp.buf.hover, { desc = "[L]SP [H]over" })
 vim.keymap.set('n', '<leader>le', vim.diagnostic.open_float, { desc = "[L]SP [E]rror" })
 vim.keymap.set('n', '<leader>lgd', vim.lsp.buf.definition, { desc = "[L]SP [G]oto [D]efinition" })
-vim.keymap.set('n', '<leader>lgr', require('telescope.builtin').lsp_references, { desc = "[L]SP [G]oto [R]ereferences" })
+vim.keymap.set('n', '<leader>lgr', builtin.lsp_references, { desc = "[L]SP [G]oto [R]ereferences" })
 vim.keymap.set('n', '<leader>lgi', vim.lsp.buf.implementation, { desc = "[L]SP [G]oto [I]mplementation" })
 
 -- MISC ONE OFF BINDINGS
@@ -199,6 +199,13 @@ require('lspconfig').lua_ls.setup({
 })
 
 require('lspconfig').gdscript.setup({})
+require('telescope').setup {
+	defaults = {
+		file_ignore_patterns = {
+			"node_modules"
+		}
+	}
+}
 
 -- CUSTOM COMMANDS
 
