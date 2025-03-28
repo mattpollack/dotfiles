@@ -3,3 +3,4 @@
 !.config/tmux/*
 !.config/nvim/*
 !init.sh
+!README.md
