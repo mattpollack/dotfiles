@@ -1,3 +1,11 @@
+if [ ! -d ~/.git ]; then
+	cp -r .git ~/
+	cd ~
+	git restore .
+	cd -
+else
+	echo "> GIT copied"
+fi
 
 if [ ! -d ~/.config/tmux ]; then
 	cp .config/tmux ~/.config
