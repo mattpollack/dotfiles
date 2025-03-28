@@ -5,7 +5,7 @@ vim.wo.relativenumber = true
 vim.opt.tabstop = 2
 vim.opt.softtabstop = 2
 vim.opt.shiftwidth = 2
---vim.opt.expandtab = true
+vim.opt.expandtab = true
 vim.opt.smartindent = true
 vim.opt.wrap = false
 vim.opt.hlsearch = false
@@ -131,6 +131,7 @@ require("lazy").setup({
 			{ "<c-\\>", "<cmd><C-U>TmuxNavigatePrevious<cr>" },
 		},
 	},
+	{ "MunifTanjim/prettier.nvim" }
 })
 
 
@@ -207,6 +208,24 @@ require('telescope').setup {
 	}
 }
 
+require("prettier").setup({
+  bin = 'prettier',
+  filetypes = {
+    "css",
+    "graphql",
+    "html",
+    "javascript",
+    "javascriptreact",
+    "json",
+    "less",
+    "markdown",
+    "scss",
+    "typescript",
+    "typescriptreact",
+    "yaml",
+  },
+})
+
 -- CUSTOM COMMANDS
 
 vim.api.nvim_create_user_command("Godoc", function(opts)
@@ -222,5 +241,13 @@ vim.api.nvim_create_user_command("Godot", function(opts)
 		'open "https://docs.godotengine.org/en/stable/search.html?check_keywords=yes&area=default&q=' .. opts.args .. '"',
 		{ detach = true })
 end, { nargs = 1 })
+
+vim.api.nvim_create_user_command('Open',
+	function()
+		local path = vim.api.nvim_buf_get_name(0)
+		os.execute('open -R ' .. path)
+	end,
+	{}
+)
 
 vim.cmd([[autocmd BufWritePre * :%s/\s\+$//e]])
