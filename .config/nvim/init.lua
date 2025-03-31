@@ -148,9 +148,7 @@ local builtin = require('telescope.builtin')
 vim.g.mapleader = ' '
 vim.keymap.set('n', '<leader>pl', vim.cmd.Ex, { desc = "[P]roject [L]isting" })
 vim.keymap.set('n', '<leader>pf', builtin.find_files, { desc = "[P]roject [F]ind" })
-vim.keymap.set('n', '<leader>pg', function()
-	builtin.grep_string({ search = vim.fn.input('Grep > ') })
-end, { desc = "[P]roject [G]rep" })
+vim.keymap.set('n', '<leader>pg', builtin.live_grep, { desc = "[P]roject [G]rep" })
 
 -- [G]IT
 
