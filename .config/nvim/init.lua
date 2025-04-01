@@ -172,6 +172,14 @@ vim.keymap.set('n', '<leader>lgd', vim.lsp.buf.definition, { desc = "[L]SP [G]ot
 vim.keymap.set('n', '<leader>lgr', builtin.lsp_references, { desc = "[L]SP [G]oto [R]ereferences" })
 vim.keymap.set('n', '<leader>lgi', vim.lsp.buf.implementation, { desc = "[L]SP [G]oto [I]mplementation" })
 
+-- [D]iagnostic
+
+vim.keymap.set('n', '<leader>dn', vim.diagnostic.goto_next, { desc = "[D]iagnostic [N]ext" })
+vim.keymap.set('n', '<leader>dp', vim.diagnostic.goto_prev, { desc = "[D]iagnostic [P]revious" })
+
+vim.diagnostic.config({
+    virtual_text = true
+})
 -- MISC ONE OFF BINDINGS
 
 vim.keymap.set('n', '<leader>u', vim.cmd.UndotreeToggle, { desc = "[U]ndo Tree" })
@@ -254,3 +262,13 @@ vim.api.nvim_create_user_command('Open',
 )
 
 vim.cmd([[autocmd BufWritePre * :%s/\s\+$//e]])
+
+-- https://github.com/relayfinancial/relay-portal/blob/master/config/demo.json
+--vim.api.nvim_create_user_command(
+--  "Blame",
+--  function (opts)
+--    local url = 'https://github.com/'
+--
+--
+--  end
+--)
