@@ -21,14 +21,14 @@ vim.keymap.set("n", "<C-b>", "<C-b>zz")
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 
 if not vim.loop.fs_stat(lazypath) then
-	vim.fn.system({
-		"git",
-		"clone",
-		"--filter=blob:none",
-		"https://github.com/folke/lazy.nvim.git",
-		"--branch=stable", -- latest stable release
-		lazypath,
-	})
+  vim.fn.system({
+    "git",
+    "clone",
+    "--filter=blob:none",
+    "https://github.com/folke/lazy.nvim.git",
+    "--branch=stable", -- latest stable release
+    lazypath,
+  })
 end
 
 vim.opt.rtp:prepend(lazypath)
@@ -44,99 +44,111 @@ vim.g.copilot_tab_fallback = ""
 -- PACKAGES
 
 require("lazy").setup({
-	"rebelot/kanagawa.nvim",
-	{
-		"nvim-treesitter/nvim-treesitter",
-		build = ":TSUpdate",
-		config = function()
-			local configs = require("nvim-treesitter.configs")
-			configs.setup({
-				ensure_installed = { "lua", "go", "gdscript" },
-				highlight = { enable = true },
-				indent = { enable = true },
-				incremental_selection = {
-					enable = true,
-					keymaps = {
-						init_selection = '<c-space>',
-						node_incremental = '<c-space>',
-						scope_incremental = '<c-s>',
-						node_decremental = '<c-backspace>', -- not working?
-					},
-				},
-				textobjects = {
-					select = {
-						enable = true,
-						lookahead = true,
-						keymaps = {
-							['aa'] = '@parameter.outer',
-							['ia'] = '@parameter.inner',
-							['af'] = '@function.outer',
-							['if'] = '@function.inner',
-							['ac'] = '@class.outer',
-							['ic'] = '@class.inner',
-						}
-					}
-				},
-				move = {
-					enable = true,
-					set_jumps = true,
-					goto_next_start = {
-						[']m'] = '@function.outer',
-						[']]'] = '@class.outer',
-					},
-					goto_next_end = {
-						[']M'] = '@function.outer',
-						[']['] = '@class.outer',
-					},
-				}
-			})
-		end
-	},
-	{
-		'nvim-telescope/telescope.nvim',
-		tag = '0.1.5',
-		dependencies = { 'nvim-lua/plenary.nvim' },
-	},
-	'nvim-treesitter/playground',
-	'mbbill/undotree',
-	'tpope/vim-fugitive',
-	'williamboman/mason.nvim',
-	'williamboman/mason-lspconfig.nvim',
-	{ 'VonHeikemen/lsp-zero.nvim', branch = 'v3.x' },
-	{ 'neovim/nvim-lspconfig' },
-	{ 'hrsh7th/cmp-nvim-lsp' },
-	{ 'hrsh7th/nvim-cmp' },
-	{ 'L3MON4D3/LuaSnip' },
-	{ 'numToStr/Comment.nvim' },
-	--{ 'github/copilot.vim' },
-	{
-		'folke/which-key.nvim',
-		--event = "VeryLazy",
-		init = function()
-			vim.o.timeout = true
-			vim.o.timeoutlen = 300
-		end,
-		opts = {},
-	},
-	{
-		"christoomey/vim-tmux-navigator",
-		cmd = {
-			"TmuxNavigateLeft",
-			"TmuxNavigateDown",
-			"TmuxNavigateUp",
-			"TmuxNavigateRight",
-			"TmuxNavigatePrevious",
-			"TmuxNavigatorProcessList",
-		},
-		keys = {
-			{ "<c-h>",  "<cmd><C-U>TmuxNavigateLeft<cr>" },
-			{ "<c-j>",  "<cmd><C-U>TmuxNavigateDown<cr>" },
-			{ "<c-k>",  "<cmd><C-U>TmuxNavigateUp<cr>" },
-			{ "<c-l>",  "<cmd><C-U>TmuxNavigateRight<cr>" },
-			{ "<c-\\>", "<cmd><C-U>TmuxNavigatePrevious<cr>" },
-		},
-	},
-	{ "MunifTanjim/prettier.nvim" }
+  "rebelot/kanagawa.nvim",
+  {
+    "nvim-treesitter/nvim-treesitter",
+    build = ":TSUpdate",
+    config = function()
+      local configs = require("nvim-treesitter.configs")
+      configs.setup({
+        ensure_installed = { "lua", "go", "gdscript" },
+        highlight = { enable = true },
+        indent = { enable = true },
+        incremental_selection = {
+          enable = true,
+          keymaps = {
+            init_selection = '<c-space>',
+            node_incremental = '<c-space>',
+            scope_incremental = '<c-s>',
+            node_decremental = '<c-backspace>', -- not working?
+          },
+        },
+        textobjects = {
+          select = {
+            enable = true,
+            lookahead = true,
+            keymaps = {
+              ['aa'] = '@parameter.outer',
+              ['ia'] = '@parameter.inner',
+              ['af'] = '@function.outer',
+              ['if'] = '@function.inner',
+              ['ac'] = '@class.outer',
+              ['ic'] = '@class.inner',
+            }
+          }
+        },
+        move = {
+          enable = true,
+          set_jumps = true,
+          goto_next_start = {
+            [']m'] = '@function.outer',
+            [']]'] = '@class.outer',
+          },
+          goto_next_end = {
+            [']M'] = '@function.outer',
+            [']['] = '@class.outer',
+          },
+        }
+      })
+    end
+  },
+  {
+    'nvim-telescope/telescope.nvim',
+    tag = '0.1.5',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+  },
+  'nvim-treesitter/playground',
+  'mbbill/undotree',
+  'tpope/vim-fugitive',
+  'williamboman/mason.nvim',
+  'williamboman/mason-lspconfig.nvim',
+  { 'VonHeikemen/lsp-zero.nvim', branch = 'v3.x' },
+  { 'neovim/nvim-lspconfig' },
+  { 'hrsh7th/cmp-nvim-lsp' },
+  { 'hrsh7th/nvim-cmp' },
+  { 'L3MON4D3/LuaSnip' },
+  { 'numToStr/Comment.nvim' },
+  --{ 'github/copilot.vim' },
+  {
+    'folke/which-key.nvim',
+    --event = "VeryLazy",
+    init = function()
+      vim.o.timeout = true
+      vim.o.timeoutlen = 300
+    end,
+    opts = {},
+  },
+  {
+    "christoomey/vim-tmux-navigator",
+    cmd = {
+      "TmuxNavigateLeft",
+      "TmuxNavigateDown",
+      "TmuxNavigateUp",
+      "TmuxNavigateRight",
+      "TmuxNavigatePrevious",
+      "TmuxNavigatorProcessList",
+    },
+    keys = {
+      { "<c-h>",  "<cmd><C-U>TmuxNavigateLeft<cr>" },
+      { "<c-j>",  "<cmd><C-U>TmuxNavigateDown<cr>" },
+      { "<c-k>",  "<cmd><C-U>TmuxNavigateUp<cr>" },
+      { "<c-l>",  "<cmd><C-U>TmuxNavigateRight<cr>" },
+      { "<c-\\>", "<cmd><C-U>TmuxNavigatePrevious<cr>" },
+    },
+  },
+  { "MunifTanjim/prettier.nvim" },
+  {
+    'rmagatti/auto-session',
+    lazy = false,
+
+    ---enables autocomplete for opts
+    ---@module "auto-session"
+    ---@type AutoSession.Config
+    opts = {
+      suppressed_dirs = { '~/', '~/Projects', '~/Downloads', '/' },
+      -- log_level = 'debug',
+    }
+  }
 })
 
 
@@ -178,7 +190,7 @@ vim.keymap.set('n', '<leader>dn', vim.diagnostic.goto_next, { desc = "[D]iagnost
 vim.keymap.set('n', '<leader>dp', vim.diagnostic.goto_prev, { desc = "[D]iagnostic [P]revious" })
 
 vim.diagnostic.config({
-    virtual_text = true
+  virtual_text = true
 })
 -- MISC ONE OFF BINDINGS
 
@@ -186,37 +198,37 @@ vim.keymap.set('n', '<leader>u', vim.cmd.UndotreeToggle, { desc = "[U]ndo Tree" 
 
 local lsp_zero = require('lsp-zero')
 lsp_zero.on_attach(function(client, bufnr)
-	lsp_zero.default_keymaps({ buffer = bufnr })
+  lsp_zero.default_keymaps({ buffer = bufnr })
 end)
 
 require('Comment').setup()
 require('mason').setup({})
 require('mason-lspconfig').setup({
-	ensure_installed = {
-		'lua_ls',
-	},
-	handlers = {
-		lsp_zero.default_setup,
-	},
+  ensure_installed = {
+    'lua_ls',
+  },
+  handlers = {
+    lsp_zero.default_setup,
+  },
 })
 
 require('lspconfig').lua_ls.setup({
-	settings = {
-		Lua = {
-			diagnostics = {
-				globals = { 'vim' }
-			}
-		}
-	}
+  settings = {
+    Lua = {
+      diagnostics = {
+        globals = { 'vim' }
+      }
+    }
+  }
 })
 
 require('lspconfig').gdscript.setup({})
 require('telescope').setup {
-	defaults = {
-		file_ignore_patterns = {
-			"node_modules"
-		}
-	}
+  defaults = {
+    file_ignore_patterns = {
+      "node_modules"
+    }
+  }
 }
 
 require("prettier").setup({
@@ -240,25 +252,25 @@ require("prettier").setup({
 -- CUSTOM COMMANDS
 
 vim.api.nvim_create_user_command("Godoc", function(opts)
-	vim.fn.jobstart('open "https://pkg.go.dev/search?q=' .. opts.args .. '"', { detach = true })
+  vim.fn.jobstart('open "https://pkg.go.dev/search?q=' .. opts.args .. '"', { detach = true })
 end, { nargs = 1 })
 
 vim.api.nvim_create_user_command("Google", function(opts)
-	vim.fn.jobstart('open "https://google.com/search?q=' .. opts.args .. '"', { detach = true })
+  vim.fn.jobstart('open "https://google.com/search?q=' .. opts.args .. '"', { detach = true })
 end, { nargs = 1 })
 
 vim.api.nvim_create_user_command("Godot", function(opts)
-	vim.fn.jobstart(
-		'open "https://docs.godotengine.org/en/stable/search.html?check_keywords=yes&area=default&q=' .. opts.args .. '"',
-		{ detach = true })
+  vim.fn.jobstart(
+    'open "https://docs.godotengine.org/en/stable/search.html?check_keywords=yes&area=default&q=' .. opts.args .. '"',
+    { detach = true })
 end, { nargs = 1 })
 
 vim.api.nvim_create_user_command('Open',
-	function()
-		local path = vim.api.nvim_buf_get_name(0)
-		os.execute('open -R ' .. path)
-	end,
-	{}
+  function()
+    local path = vim.api.nvim_buf_get_name(0)
+    os.execute('open -R ' .. path)
+  end,
+  {}
 )
 
 vim.cmd([[autocmd BufWritePre * :%s/\s\+$//e]])
@@ -272,3 +284,16 @@ vim.cmd([[autocmd BufWritePre * :%s/\s\+$//e]])
 --
 --  end
 --)
+
+-- AUTO COMMANDS
+local autocmd_group = vim.api.nvim_create_augroup("Custom auto-commands", { clear = true })
+
+--vim.api.nvim_create_autocmd({ "BufWritePost" }, {
+--  pattern = { "*.yaml", "*.yml" },
+--  desc = "Auto-format YAML files after saving",
+--  callback = function()
+--    local fileName = vim.api.nvim_buf_get_name(0)
+--    vim.cmd(":!yamlfmt " .. fileName)
+--  end,
+--  group = autocmd_group,
+--})

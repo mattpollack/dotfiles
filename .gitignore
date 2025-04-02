@@ -2,5 +2,6 @@
 !.gitignore
 !.config/tmux/*
 !.config/nvim/*
+!.config/aerospace/*
 !init.sh
 !README.md
