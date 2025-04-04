@@ -140,15 +140,11 @@ require("lazy").setup({
   {
     'rmagatti/auto-session',
     lazy = false,
-
-    ---enables autocomplete for opts
-    ---@module "auto-session"
-    ---@type AutoSession.Config
     opts = {
       suppressed_dirs = { '~/', '~/Projects', '~/Downloads', '/' },
-      -- log_level = 'debug',
     }
-  }
+  },
+  { 'echasnovski/mini.surround', version = '*' },
 })
 
 
@@ -202,6 +198,8 @@ lsp_zero.on_attach(function(client, bufnr)
 end)
 
 require('Comment').setup()
+require('mini.surround').setup()
+vim.keymap.set({ 'n', 'x' }, 's', '<Nop>')
 require('mason').setup({})
 require('mason-lspconfig').setup({
   ensure_installed = {
@@ -222,21 +220,21 @@ require('lspconfig').lua_ls.setup({
   }
 })
 
-local handle = io.popen("ip route")
-local result = handle:read("*a")
-handle:close()
-local ip = string.match(result, "default via ([0-9]+.[0-9]+.[0-9]+.[0-9]+).*")
-if (ip ~= nil) then
-  require('lspconfig').gdscript.setup({
-    name = "godot",
-    cmd = vim.lsp.rpc.connect(ip, 6005),
-  })
-else
-  require('lspconfig').gdscript.setup({
-    name = "godot",
-    cmd = vim.lsp.rpc.connect("127.0.0.1", 6005),
-  })
-end
+--local handle = io.popen("ip route")
+--local result = handle:read("*a")
+--ihandle:close()
+--local ip = string.match(result, "default via ([0-9]+.[0-9]+.[0-9]+.[0-9]+).*")
+--if (ip ~= nil) then
+--  require('lspconfig').gdscript.setup({
+--    name = "godot",
+--    cmd = vim.lsp.rpc.connect(ip, 6005),
+--  })
+--else
+require('lspconfig').gdscript.setup({
+  name = "godot",
+  cmd = vim.lsp.rpc.connect("127.0.0.1", 6005),
+})
+-- end
 
 require('telescope').setup {
   defaults = {
@@ -301,7 +299,7 @@ vim.cmd([[autocmd BufWritePre * :%s/\s\+$//e]])
 --)
 
 -- AUTO COMMANDS
-local autocmd_group = vim.api.nvim_create_augroup("Custom auto-commands", { clear = true })
+-- local autocmd_group = vim.api.nvim_create_augroup("Custom auto-commands", { clear = true })
 
 --vim.api.nvim_create_autocmd({ "BufWritePost" }, {
 --  pattern = { "*.yaml", "*.yml" },
