@@ -222,7 +222,23 @@ require('lspconfig').lua_ls.setup({
   }
 })
 
-require('lspconfig').gdscript.setup({})
+local handle = io.popen("ip route")
+
+if (handle ~= nil) then
+  local result = handle:read("*a")
+  handle:close()
+  local ip = string.match(result, "default via ([0-9]+.[0-9]+.[0-9]+.[0-9]+).*")
+  require('lspconfig').gdscript.setup({
+    name = "godot",
+    cmd = vim.lsp.rpc.connect(ip, 6005),
+  })
+else
+  require('lspconfig').gdscript.setup({
+    name = "godot",
+    cmd = vim.lsp.rpc.connect("127.0.0.1", 6005),
+  })
+end
+
 require('telescope').setup {
   defaults = {
     file_ignore_patterns = {
