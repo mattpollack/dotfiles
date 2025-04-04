@@ -3,5 +3,6 @@
 !.config/tmux/*
 !.config/nvim/*
 !.config/aerospace/*
+!.config/wezterm/*
 !init.sh
 !README.md
