@@ -223,11 +223,10 @@ require('lspconfig').lua_ls.setup({
 })
 
 local handle = io.popen("ip route")
-
-if (handle ~= nil) then
-  local result = handle:read("*a")
-  handle:close()
-  local ip = string.match(result, "default via ([0-9]+.[0-9]+.[0-9]+.[0-9]+).*")
+local result = handle:read("*a")
+handle:close()
+local ip = string.match(result, "default via ([0-9]+.[0-9]+.[0-9]+.[0-9]+).*")
+if (ip ~= nil) then
   require('lspconfig').gdscript.setup({
     name = "godot",
     cmd = vim.lsp.rpc.connect(ip, 6005),
