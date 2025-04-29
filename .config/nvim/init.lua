@@ -8,7 +8,7 @@ vim.opt.shiftwidth = 2
 vim.opt.expandtab = true
 vim.opt.smartindent = true
 vim.opt.wrap = false
-vim.opt.hlsearch = false
+vim.opt.hlsearch = true
 vim.opt.incsearch = true
 vim.opt.ignorecase = true
 vim.keymap.set("n", "<C-d>", "<C-d>zz")
@@ -35,7 +35,7 @@ vim.opt.rtp:prepend(lazypath)
 
 -- PRE SETUP
 
---vim.api.nvim_set_keymap("i", "<C-y>", 'copilot#Accept("<CR>")', { silent = true, expr = true })
+vim.api.nvim_set_keymap("i", "<C-y>", 'copilot#Accept("<CR>")', { silent = true, expr = true })
 --vim.keymap.set("i", "<C-w>", '<Plug>(copilot-accept-word)')
 vim.g.copilot_no_tab_map = true
 vim.g.copilot_assume_mapped = true
@@ -45,6 +45,7 @@ vim.g.copilot_tab_fallback = ""
 
 require("lazy").setup({
   "rebelot/kanagawa.nvim",
+  { 'JoosepAlviste/nvim-ts-context-commentstring' }, -- Not working??
   {
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
@@ -102,22 +103,31 @@ require("lazy").setup({
   'tpope/vim-fugitive',
   'williamboman/mason.nvim',
   'williamboman/mason-lspconfig.nvim',
-  { 'VonHeikemen/lsp-zero.nvim', branch = 'v3.x' },
+  { 'VonHeikemen/lsp-zero.nvim',                  branch = 'v3.x' },
   { 'neovim/nvim-lspconfig' },
   { 'hrsh7th/cmp-nvim-lsp' },
   { 'hrsh7th/nvim-cmp' },
   { 'L3MON4D3/LuaSnip' },
-  { 'numToStr/Comment.nvim' },
-  --{ 'github/copilot.vim' },
   {
-    'folke/which-key.nvim',
-    --event = "VeryLazy",
-    init = function()
-      vim.o.timeout = true
-      vim.o.timeoutlen = 300
+    'numToStr/Comment.nvim',
+    config = function()
+      require('Comment').setup {
+        pre_hook = function()
+          return vim.bo.commentstring
+        end,
+      }
     end,
-    opts = {},
   },
+  { 'github/copilot.vim' },
+  --{
+  --  'folke/which-key.nvim',
+  --  --event = "VeryLazy",
+  --  init = function()
+  --    vim.o.timeout = true
+  --    vim.o.timeoutlen = 300
+  --  end,
+  --  opts = {},
+  --},
   {
     "christoomey/vim-tmux-navigator",
     cmd = {
@@ -144,7 +154,21 @@ require("lazy").setup({
       suppressed_dirs = { '~/', '~/Projects', '~/Downloads', '/' },
     }
   },
-  { 'echasnovski/mini.surround', version = '*' },
+  { 'echasnovski/mini.surround',              version = '*' },
+  { 'nvim-treesitter/nvim-treesitter-context' },
+  {
+    "ThePrimeagen/harpoon",
+    branch = "harpoon2",
+    dependencies = { "nvim-lua/plenary.nvim" }
+  },
+  {
+    "olimorris/codecompanion.nvim",
+    opts = {},
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "nvim-treesitter/nvim-treesitter",
+    },
+  }
 })
 
 
@@ -188,6 +212,7 @@ vim.keymap.set('n', '<leader>dp', vim.diagnostic.goto_prev, { desc = "[D]iagnost
 vim.diagnostic.config({
   virtual_text = true
 })
+
 -- MISC ONE OFF BINDINGS
 
 vim.keymap.set('n', '<leader>u', vim.cmd.UndotreeToggle, { desc = "[U]ndo Tree" })
@@ -198,6 +223,7 @@ lsp_zero.on_attach(function(client, bufnr)
 end)
 
 require('Comment').setup()
+require('ts_context_commentstring').setup({ enable_autocmd = false })
 require('mini.surround').setup()
 vim.keymap.set({ 'n', 'x' }, 's', '<Nop>')
 require('mason').setup({})
@@ -218,6 +244,10 @@ require('lspconfig').lua_ls.setup({
       }
     }
   }
+})
+require('treesitter-context').setup({
+  enabled = true,
+  multiwindow = true,
 })
 
 --local handle = io.popen("ip route")
@@ -288,25 +318,150 @@ vim.api.nvim_create_user_command('Open',
 
 vim.cmd([[autocmd BufWritePre * :%s/\s\+$//e]])
 
--- https://github.com/relayfinancial/relay-portal/blob/master/config/demo.json
---vim.api.nvim_create_user_command(
---  "Blame",
---  function (opts)
---    local url = 'https://github.com/'
---
---
---  end
---)
+vim.api.nvim_create_user_command('Blame', function()
+  local file_path = vim.fn.expand('%:p')
+  local git_remote = vim.fn.system('git config --get remote.origin.url'):gsub('\n', '')
+  local repo_url = git_remote:match('github.com[:/](.+)%.git$')
+  if not repo_url then
+    vim.api.nvim_err_writeln('Could not determine GitHub repository URL.')
+    return
+  end
 
--- AUTO COMMANDS
--- local autocmd_group = vim.api.nvim_create_augroup("Custom auto-commands", { clear = true })
+  local branch = 'main'
+  if vim.fn.system('git show-ref --verify refs/heads/master'):gsub('\n', '') ~= '' then
+    branch = 'master'
+  end
 
---vim.api.nvim_create_autocmd({ "BufWritePost" }, {
---  pattern = { "*.yaml", "*.yml" },
---  desc = "Auto-format YAML files after saving",
---  callback = function()
---    local fileName = vim.api.nvim_buf_get_name(0)
---    vim.cmd(":!yamlfmt " .. fileName)
---  end,
---  group = autocmd_group,
---})
+  local relative_path = vim.fn.fnamemodify(file_path, ':~:.')
+  local line_number = vim.fn.line('.')
+  local github_url = 'https://github.com/' ..
+      repo_url .. '/blame/' .. branch .. '/' .. relative_path .. '#L' .. line_number
+  vim.fn.system({ 'open', github_url })
+end, { desc = 'Open current file in GitHub' })
+
+vim.api.nvim_create_user_command('InsertOpenBuffers', function()
+  local chat = require("codecompanion").chat()
+
+  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+    if vim.api.nvim_buf_is_loaded(buf) and vim.api.nvim_buf_get_option(buf, 'buftype') == '' then
+      local file_path = vim.api.nvim_buf_get_name(buf)
+      local cwd = vim.fn.getcwd()
+      local relative_path = vim.fn.fnamemodify(file_path, ":." .. cwd)
+
+      if relative_path ~= '' and vim.fn.filereadable(relative_path) == 1 then
+        chat.references:add({
+          id = '<file>' .. relative_path .. '</file>',
+          path = relative_path,
+          source = "codecompanion.strategies.chat.slash_commands.file",
+          opts = {
+            pinned = true,
+            watched = false,
+            visible = true,
+          }
+        })
+      end
+    end
+  end
+end, {})
+
+vim.api.nvim_create_user_command('InsertHarpoonFiles', function()
+  local chat = require("codecompanion").chat()
+  local harpoon = require("harpoon")
+  local harpoon_list = harpoon:list()
+
+  for _, item in ipairs(harpoon_list.items) do
+    local file_path = item.value
+    local cwd = vim.fn.getcwd()
+    local relative_path = vim.fn.fnamemodify(file_path, ":." .. cwd)
+
+    if relative_path ~= '' and vim.fn.filereadable(relative_path) == 1 then
+      chat.references:add({
+        id = '<file>' .. relative_path .. '</file>',
+        path = relative_path,
+        source = "codecompanion.strategies.chat.slash_commands.file",
+        opts = {
+          pinned = true,
+          watched = false,
+          visible = true,
+        }
+      })
+    end
+  end
+end, {})
+
+-- Harpoon Setup
+
+local harpoon = require("harpoon")
+
+harpoon:setup()
+
+local conf = require("telescope.config").values
+local function toggle_telescope(harpoon_files)
+  local file_paths = {}
+
+  for _, item in ipairs(harpoon_files.items) do
+    table.insert(file_paths, item.value)
+  end
+
+  local make_finder = function()
+    local paths = {}
+
+    for _, item in ipairs(harpoon_files.items) do
+      table.insert(paths, item.value)
+    end
+
+    return require("telescope.finders").new_table({
+      results = paths,
+    })
+  end
+
+  require("telescope.pickers")
+      .new({}, {
+        prompt_title = "Harpoon",
+        finder = require("telescope.finders").new_table({
+          results = file_paths,
+        }),
+        previewer = false,
+        sorter = conf.generic_sorter({}),
+        layout_strategy = "center",
+        attach_mappings = function(prompt_buffer_number, map)
+          -- The keymap you need
+          map("i", "<c-d>", function()
+            local state = require("telescope.actions.state")
+            local selected_entry = state.get_selected_entry()
+            local current_picker = state.get_current_picker(prompt_buffer_number)
+
+            -- This is the line you need to remove the entry
+            harpoon:list():remove(selected_entry)
+            current_picker:refresh(make_finder())
+          end)
+
+          return true
+        end,
+      })
+      :find()
+end
+
+vim.keymap.set("n", "<leader>ta", function() harpoon:list():add() end)
+vim.keymap.set("n", "<leader>tl", function() toggle_telescope(harpoon:list()) end, { desc = "Open harpoon window" })
+vim.keymap.set("n", "<C-S-P>", function() harpoon:list():prev() end)
+vim.keymap.set("n", "<C-S-N>", function() harpoon:list():next() end)
+
+require("codecompanion").setup({
+  strategies = {
+    chat = {
+      adapter = "copilot",
+    },
+    inline = {
+      adapter = "copilot",
+    },
+  },
+  opts = {
+    log_level = "DEBUG",
+  }
+})
+
+vim.keymap.set({ "n", "v" }, "<leader>a", "<cmd>CodeCompanionActions<cr>", { noremap = true, silent = true })
+vim.keymap.set({ "n", "v" }, "<leader>c", "<cmd>CodeCompanionChat Toggle<cr>", { noremap = true, silent = true })
+vim.keymap.set("n", "ga", "<cmd>CodeCompanionChat Add<cr>", { noremap = true, silent = true })
+vim.keymap.set("n", "gr", "<cmd>CodeCompanionChat Reject<cr>", { noremap = true, silent = true })
