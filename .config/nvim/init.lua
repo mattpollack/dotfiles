@@ -118,7 +118,7 @@ require("lazy").setup({
       }
     end,
   },
-  { 'github/copilot.vim' },
+  --{ 'github/copilot.vim' },
   --{
   --  'folke/which-key.nvim',
   --  --event = "VeryLazy",
@@ -389,6 +389,15 @@ vim.api.nvim_create_user_command('InsertHarpoonFiles', function()
   end
 end, {})
 
+vim.api.nvim_create_autocmd('CursorMoved', {
+  group = vim.api.nvim_create_augroup('auto-hlsearch', { clear = true }),
+  callback = function ()
+    if vim.v.hlsearch == 1 and vim.fn.searchcount().exact_match == 0 then
+      vim.schedule(function () vim.cmd.nohlsearch() end)
+    end
+  end
+})
+
 -- Harpoon Setup
 
 local harpoon = require("harpoon")
@@ -442,18 +451,20 @@ local function toggle_telescope(harpoon_files)
       :find()
 end
 
-vim.keymap.set("n", "<leader>ta", function() harpoon:list():add() end)
-vim.keymap.set("n", "<leader>tl", function() toggle_telescope(harpoon:list()) end, { desc = "Open harpoon window" })
-vim.keymap.set("n", "<C-S-P>", function() harpoon:list():prev() end)
-vim.keymap.set("n", "<C-S-N>", function() harpoon:list():next() end)
+vim.keymap.set("n", "<leader>ha", function() harpoon:list():add() end)
+vim.keymap.set("n", "<leader>hl", function() toggle_telescope(harpoon:list()) end, { desc = "Open harpoon window" })
+vim.api.nvim_set_keymap('n', '<leader>hf', ':InsertHarpoonFiles<CR>', { noremap = true, silent = true })
+
+-- vim.keymap.set("n", "<C-S-P>", function() harpoon:list():prev() end)
+-- vim.keymap.set("n", "<C-S-N>", function() harpoon:list():next() end)
 
 require("codecompanion").setup({
   strategies = {
     chat = {
-      adapter = "copilot",
+      --adapter = "copilot",
     },
     inline = {
-      adapter = "copilot",
+      --adapter = "copilot",
     },
   },
   opts = {
@@ -461,7 +472,8 @@ require("codecompanion").setup({
   }
 })
 
-vim.keymap.set({ "n", "v" }, "<leader>a", "<cmd>CodeCompanionActions<cr>", { noremap = true, silent = true })
-vim.keymap.set({ "n", "v" }, "<leader>c", "<cmd>CodeCompanionChat Toggle<cr>", { noremap = true, silent = true })
+vim.keymap.set({ "n", "v" }, "<leader>aa", "<cmd>CodeCompanionActions<cr>", { noremap = true, silent = true })
+vim.keymap.set({ "n", "v" }, "<leader>ac", "<cmd>CodeCompanionChat Toggle<cr>", { noremap = true, silent = true })
 vim.keymap.set("n", "ga", "<cmd>CodeCompanionChat Add<cr>", { noremap = true, silent = true })
 vim.keymap.set("n", "gr", "<cmd>CodeCompanionChat Reject<cr>", { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<leader>af', ':InsertOpenBuffers<CR>', { noremap = true, silent = true })
