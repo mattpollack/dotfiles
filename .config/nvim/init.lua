@@ -391,9 +391,9 @@ end, {})
 
 vim.api.nvim_create_autocmd('CursorMoved', {
   group = vim.api.nvim_create_augroup('auto-hlsearch', { clear = true }),
-  callback = function ()
+  callback = function()
     if vim.v.hlsearch == 1 and vim.fn.searchcount().exact_match == 0 then
-      vim.schedule(function () vim.cmd.nohlsearch() end)
+      vim.schedule(function() vim.cmd.nohlsearch() end)
     end
   end
 })
@@ -461,11 +461,20 @@ vim.api.nvim_set_keymap('n', '<leader>hf', ':InsertHarpoonFiles<CR>', { noremap 
 require("codecompanion").setup({
   strategies = {
     chat = {
-      --adapter = "copilot",
+      adapter = "anthropic",
     },
     inline = {
-      --adapter = "copilot",
+      adapter = "anthropic",
     },
+  },
+  adapters = {
+    anthropic = function()
+      return require("codecompanion.adapters").extend("anthropic", {
+        env = {
+          api_key = "cmd:op read op://APIs/Anthropic/password --no-newline",
+        },
+      })
+    end,
   },
   opts = {
     log_level = "DEBUG",
