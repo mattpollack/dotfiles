@@ -41,6 +41,10 @@ vim.g.copilot_no_tab_map = true
 vim.g.copilot_assume_mapped = true
 vim.g.copilot_tab_fallback = ""
 
+local function is_work_computer()
+  return os.getenv("WORK_COMPUTER") ~= nil
+end
+
 -- PACKAGES
 
 require("lazy").setup({
@@ -118,7 +122,10 @@ require("lazy").setup({
       }
     end,
   },
-  --{ 'github/copilot.vim' },
+  {
+    'github/copilot.vim',
+    enabled = is_work_computer()
+  },
   --{
   --  'folke/which-key.nvim',
   --  --event = "VeryLazy",
@@ -461,10 +468,10 @@ vim.api.nvim_set_keymap('n', '<leader>hf', ':InsertHarpoonFiles<CR>', { noremap 
 require("codecompanion").setup({
   strategies = {
     chat = {
-      adapter = "anthropic",
+      adapter = is_work_computer() and "copilot" or "anthropic",
     },
     inline = {
-      adapter = "anthropic",
+      adapter = is_work_computer() and "copilot" or "anthropic",
     },
   },
   adapters = {
