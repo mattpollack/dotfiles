@@ -161,7 +161,7 @@ require("lazy").setup({
       suppressed_dirs = { '~/', '~/Projects', '~/Downloads', '/' },
     }
   },
-  { 'echasnovski/mini.surround',              version = '*' },
+  { 'echasnovski/mini.surround', version = '*' },
   { 'nvim-treesitter/nvim-treesitter-context' },
   {
     "ThePrimeagen/harpoon",
@@ -175,7 +175,8 @@ require("lazy").setup({
       "nvim-lua/plenary.nvim",
       "nvim-treesitter/nvim-treesitter",
     },
-  }
+  },
+  { 'echasnovski/mini.nvim', version = '*' },
 })
 
 
@@ -459,7 +460,8 @@ harpoon:setup()
 -- end
 
 vim.keymap.set("n", "<leader>ha", function() harpoon:list():add() end)
-vim.keymap.set("n", "<leader>hl", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end, { desc = "Open harpoon window" })
+vim.keymap.set("n", "<leader>hl", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end,
+  { desc = "Open harpoon window" })
 vim.api.nvim_set_keymap('n', '<leader>hf', ':InsertHarpoonFiles<CR>', { noremap = true, silent = true })
 
 -- vim.keymap.set("n", "<C-S-P>", function() harpoon:list():prev() end)
@@ -485,7 +487,12 @@ require("codecompanion").setup({
   },
   opts = {
     log_level = "DEBUG",
-  }
+  },
+  display = {
+    diff = {
+      provider = "mini_diff",
+    },
+  },
 })
 
 vim.keymap.set({ "n", "v" }, "<leader>aa", "<cmd>CodeCompanionActions<cr>", { noremap = true, silent = true })
@@ -493,3 +500,19 @@ vim.keymap.set({ "n", "v" }, "<leader>ac", "<cmd>CodeCompanionChat Toggle<cr>", 
 vim.keymap.set("n", "ga", "<cmd>CodeCompanionChat Add<cr>", { noremap = true, silent = true })
 vim.keymap.set("n", "gr", "<cmd>CodeCompanionChat Reject<cr>", { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<leader>af', ':InsertOpenBuffers<CR>', { noremap = true, silent = true })
+
+
+-- MINI DIFF
+
+
+require('mini.diff').setup({
+  view = {
+    style = 'sign',
+  },
+  diff = {
+    win_options = {
+      foldmethod = 'expr',
+      foldexpr = '0',
+    },
+  }
+})
