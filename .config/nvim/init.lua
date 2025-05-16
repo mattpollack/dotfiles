@@ -11,6 +11,7 @@ vim.opt.wrap = false
 vim.opt.hlsearch = true
 vim.opt.incsearch = true
 vim.opt.ignorecase = true
+vim.opt.cursorcolumn = true
 vim.keymap.set("n", "<C-d>", "<C-d>zz")
 vim.keymap.set("n", "<C-u>", "<C-u>zz")
 vim.keymap.set("n", "<C-f>", "<C-f>zz")
