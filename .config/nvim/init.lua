@@ -101,7 +101,10 @@ require("lazy").setup({
   {
     'nvim-telescope/telescope.nvim',
     tag = '0.1.5',
-    dependencies = { 'nvim-lua/plenary.nvim' },
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      'nvim-telescope/telescope-live-grep-args.nvim',
+    },
   },
   'nvim-treesitter/playground',
   'mbbill/undotree',
@@ -162,7 +165,7 @@ require("lazy").setup({
       suppressed_dirs = { '~/', '~/Projects', '~/Downloads', '/' },
     }
   },
-  { 'echasnovski/mini.surround', version = '*' },
+  { 'echasnovski/mini.surround',              version = '*' },
   { 'nvim-treesitter/nvim-treesitter-context' },
   {
     "ThePrimeagen/harpoon",
@@ -178,6 +181,7 @@ require("lazy").setup({
     },
   },
   { 'echasnovski/mini.nvim', version = '*' },
+  { 'itchyny/vim-qfedit' },
 })
 
 
@@ -187,6 +191,10 @@ vim.cmd("colorscheme kanagawa")
 
 -- AFTER REMAPS
 
+local telescope = require("telescope")
+telescope.setup({})
+telescope.load_extension("live_grep_args")
+
 local builtin = require('telescope.builtin')
 
 -- [P]ROJECT
@@ -194,7 +202,7 @@ local builtin = require('telescope.builtin')
 vim.g.mapleader = ' '
 vim.keymap.set('n', '<leader>pl', vim.cmd.Ex, { desc = "[P]roject [L]isting" })
 vim.keymap.set('n', '<leader>pf', builtin.find_files, { desc = "[P]roject [F]ind" })
-vim.keymap.set('n', '<leader>pg', builtin.live_grep, { desc = "[P]roject [G]rep" })
+vim.keymap.set('n', '<leader>pg', ":lua require('telescope').extensions.live_grep_args.live_grep_args()<CR>", { desc = "[P]roject [G]rep" })
 
 -- [G]IT
 
@@ -221,6 +229,12 @@ vim.keymap.set('n', '<leader>dp', vim.diagnostic.goto_prev, { desc = "[D]iagnost
 vim.diagnostic.config({
   virtual_text = true
 })
+
+-- [Q]uickfix
+
+vim.keymap.set('n', '<leader>qq', vim.cmd.copen, { desc = "[Q]uickfix Open" })
+vim.keymap.set('n', '<leader>qn', vim.cmd.cnext, { desc = "[Q]uickfix Open" })
+vim.keymap.set('n', '<leader>qp', vim.cmd.cprev, { desc = "[Q]uickfix Open" })
 
 -- MISC ONE OFF BINDINGS
 
