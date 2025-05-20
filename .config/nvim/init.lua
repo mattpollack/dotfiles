@@ -192,7 +192,60 @@ vim.cmd("colorscheme kanagawa")
 -- AFTER REMAPS
 
 local telescope = require("telescope")
-telescope.setup({})
+local actions = require("telescope.actions")
+local action_state = require("telescope.actions.state")
+
+local function get_entry_filename(entry)
+  if entry.path or entry.filename then
+    return entry.path or entry.filename
+  elseif not entry.bufnr then
+    local value = entry.value
+
+    if not value then
+      return
+    end
+
+    if type(value) == "table" then
+      value = entry.display
+    end
+
+    local sections = vim.split(value, ":")
+
+    return sections[1]
+  end
+end
+
+local function push_selected_to_harpoon(prompt_bufnr)
+  local harpoon = require("harpoon")
+  local picker = action_state.get_current_picker(prompt_bufnr)
+  local multi_selections = picker:get_multi_selection()
+
+  if #multi_selections == 0 then
+    local entry = action_state.get_selected_entry()
+    if entry then
+      harpoon:list():add(get_entry_filename(entry))
+    end
+  else
+    for _, entry in ipairs(multi_selections) do
+      harpoon:list():add(get_entry_filename(entry))
+    end
+  end
+end
+
+telescope.setup({
+  defaults = {
+    mappings = {
+      i = {
+        ["<C-t>"] = actions.send_selected_to_qflist + actions.open_qflist,
+        -- ["<C-a>"] = push_selected_to_harpoon,
+      },
+      n = {
+        ["<C-t>"] = actions.send_selected_to_qflist + actions.open_qflist,
+        --["<C-a>"] = push_selected_to_harpoon,
+      },
+    }
+  }
+})
 telescope.load_extension("live_grep_args")
 
 local builtin = require('telescope.builtin')
@@ -202,7 +255,8 @@ local builtin = require('telescope.builtin')
 vim.g.mapleader = ' '
 vim.keymap.set('n', '<leader>pl', vim.cmd.Ex, { desc = "[P]roject [L]isting" })
 vim.keymap.set('n', '<leader>pf', builtin.find_files, { desc = "[P]roject [F]ind" })
-vim.keymap.set('n', '<leader>pg', ":lua require('telescope').extensions.live_grep_args.live_grep_args()<CR>", { desc = "[P]roject [G]rep" })
+vim.keymap.set('n', '<leader>pg', ":lua require('telescope').extensions.live_grep_args.live_grep_args()<CR>",
+  { desc = "[P]roject [G]rep" })
 
 -- [G]IT
 
@@ -232,16 +286,27 @@ vim.diagnostic.config({
 
 -- [Q]uickfix
 
-vim.keymap.set('n', '<leader>qq', vim.cmd.copen, { desc = "[Q]uickfix Open" })
+vim.keymap.set('n', '<leader>qq', function()
+  if vim.fn.getwininfo(vim.fn.getqflist({ winid = 0 }).winid)[1] then
+    vim.cmd.cclose()
+  else
+    vim.cmd.copen()
+  end
+end, { desc = "[Q]uickfix Toggle" })
+
 vim.keymap.set('n', '<leader>qn', vim.cmd.cnext, { desc = "[Q]uickfix Open" })
 vim.keymap.set('n', '<leader>qp', vim.cmd.cprev, { desc = "[Q]uickfix Open" })
+vim.keymap.set('n', '<leader>qd', vim.diagnostic.setqflist, { desc = "[Q]uickfix [D]iagnostics" })
+vim.keymap.set('n', '<leader>qc', function()
+  vim.fn.setqflist({}); vim.cmd.cclose()
+end, { desc = "[Q]uickfix [C]lear" })
 
 -- MISC ONE OFF BINDINGS
 
 vim.keymap.set('n', '<leader>u', vim.cmd.UndotreeToggle, { desc = "[U]ndo Tree" })
 
 local lsp_zero = require('lsp-zero')
-lsp_zero.on_attach(function(client, bufnr)
+lsp_zero.on_attach(function(_, bufnr)
   lsp_zero.default_keymaps({ buffer = bufnr })
 end)
 
@@ -424,55 +489,7 @@ vim.api.nvim_create_autocmd('CursorMoved', {
 -- Harpoon Setup
 
 local harpoon = require("harpoon")
-
 harpoon:setup()
-
--- local conf = require("telescope.config").values
--- local function toggle_telescope(harpoon_files)
---   local file_paths = {}
---
---   for _, item in ipairs(harpoon_files.items) do
---     table.insert(file_paths, item.value)
---   end
---
---   local make_finder = function()
---     local paths = {}
---
---     for _, item in ipairs(harpoon_files.items) do
---       table.insert(paths, item.value)
---     end
---
---     return require("telescope.finders").new_table({
---       results = paths,
---     })
---   end
---
---   require("telescope.pickers")
---       .new({}, {
---         prompt_title = "Harpoon",
---         finder = require("telescope.finders").new_table({
---           results = file_paths,
---         }),
---         previewer = false,
---         sorter = conf.generic_sorter({}),
---         layout_strategy = "center",
---         attach_mappings = function(prompt_buffer_number, map)
---           -- The keymap you need
---           map("i", "<c-d>", function()
---             local state = require("telescope.actions.state")
---             local selected_entry = state.get_selected_entry()
---             local current_picker = state.get_current_picker(prompt_buffer_number)
---
---             -- This is the line you need to remove the entry
---             harpoon:list():remove(selected_entry)
---             current_picker:refresh(make_finder())
---           end)
---
---           return true
---         end,
---       })
---       :find()
--- end
 
 vim.keymap.set("n", "<leader>ha", function() harpoon:list():add() end)
 vim.keymap.set("n", "<leader>hl", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end,
