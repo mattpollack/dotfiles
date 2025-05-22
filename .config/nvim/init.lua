@@ -166,7 +166,6 @@ require("lazy").setup({
     }
   },
   { 'echasnovski/mini.surround',              version = '*' },
-  { 'nvim-treesitter/nvim-treesitter-context' },
   {
     "ThePrimeagen/harpoon",
     branch = "harpoon2",
@@ -332,10 +331,6 @@ require('lspconfig').lua_ls.setup({
       }
     }
   }
-})
-require('treesitter-context').setup({
-  enabled = true,
-  multiwindow = true,
 })
 
 --local handle = io.popen("ip route")
