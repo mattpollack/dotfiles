@@ -165,7 +165,7 @@ require("lazy").setup({
       suppressed_dirs = { '~/', '~/Projects', '~/Downloads', '/' },
     }
   },
-  { 'echasnovski/mini.surround',              version = '*' },
+  { 'echasnovski/mini.surround', version = '*' },
   {
     "ThePrimeagen/harpoon",
     branch = "harpoon2",
@@ -251,10 +251,24 @@ local builtin = require('telescope.builtin')
 
 -- [P]ROJECT
 
+local function get_visual_selection()
+  vim.cmd('noau normal! "vy"')
+  local text = vim.fn.getreg('v')
+  vim.fn.setreg('v', {})
+
+  text = string.gsub(text, "\n", "")
+  if #text > 0 then
+    return text
+  else
+    return ''
+  end
+end
+
 vim.g.mapleader = ' '
 vim.keymap.set('n', '<leader>pl', vim.cmd.Ex, { desc = "[P]roject [L]isting" })
 vim.keymap.set('n', '<leader>pf', builtin.find_files, { desc = "[P]roject [F]ind" })
-vim.keymap.set('n', '<leader>pg', ":lua require('telescope').extensions.live_grep_args.live_grep_args()<CR>",
+vim.keymap.set({ 'n', 'v' }, '<leader>pg',
+  function() telescope.extensions.live_grep_args.live_grep_args({ default_text = get_visual_selection() }) end,
   { desc = "[P]roject [G]rep" })
 
 -- [G]IT
