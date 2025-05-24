@@ -313,6 +313,7 @@ vim.keymap.set('n', '<leader>qd', vim.diagnostic.setqflist, { desc = "[Q]uickfix
 vim.keymap.set('n', '<leader>qc', function()
   vim.fn.setqflist({}); vim.cmd.cclose()
 end, { desc = "[Q]uickfix [C]lear" })
+vim.api.nvim_set_keymap('n', '<leader>qf', ':InsertQuickfixFiles<CR>', { noremap = true, silent = true })
 
 -- MISC ONE OFF BINDINGS
 
@@ -456,6 +457,36 @@ vim.api.nvim_create_user_command('InsertOpenBuffers', function()
             visible = true,
           }
         })
+      end
+    end
+  end
+end, {})
+
+vim.api.nvim_create_user_command('InsertQuickfixFiles', function()
+  local chat = require("codecompanion").chat()
+  local qf_list = vim.fn.getqflist()
+  local added_files = {} -- To avoid duplicates
+
+  for _, item in ipairs(qf_list) do
+    local bufnr = item.bufnr
+    if bufnr > 0 then
+      local file_path = vim.api.nvim_buf_get_name(bufnr)
+      local cwd = vim.fn.getcwd()
+      local relative_path = vim.fn.fnamemodify(file_path, ":." .. cwd)
+
+      -- Avoid duplicates and check if file exists
+      if not added_files[relative_path] and relative_path ~= '' and vim.fn.filereadable(relative_path) == 1 then
+        chat.references:add({
+          id = '<file>' .. relative_path .. '</file>',
+          path = relative_path,
+          source = "codecompanion.strategies.chat.slash_commands.file",
+          opts = {
+            pinned = true,
+            watched = false,
+            visible = true,
+          }
+        })
+        added_files[relative_path] = true
       end
     end
   end
