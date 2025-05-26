@@ -185,6 +185,10 @@ require("lazy").setup({
 
 
 -- SETUP
+-- Default options:
+require('kanagawa').setup({
+  transparent = true
+})
 
 vim.cmd("colorscheme kanagawa")
 
