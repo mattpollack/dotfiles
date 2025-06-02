@@ -16,6 +16,7 @@ vim.keymap.set("n", "<C-d>", "<C-d>zz")
 vim.keymap.set("n", "<C-u>", "<C-u>zz")
 vim.keymap.set("n", "<C-f>", "<C-f>zz")
 vim.keymap.set("n", "<C-b>", "<C-b>zz")
+vim.api.nvim_set_option("clipboard","unnamed")
 
 -- LAZY PACKAGE MANAGER
 
@@ -108,7 +109,6 @@ require("lazy").setup({
   },
   'nvim-treesitter/playground',
   'mbbill/undotree',
-  'tpope/vim-fugitive',
   'williamboman/mason.nvim',
   'williamboman/mason-lspconfig.nvim',
   { 'VonHeikemen/lsp-zero.nvim',                  branch = 'v3.x' },
@@ -188,6 +188,8 @@ require("lazy").setup({
   --   ---@type ibl.config
   --   opts = {},
   -- }
+
+  'tpope/vim-fugitive',
 })
 
 -- AFTER REMAPS
@@ -309,9 +311,10 @@ vim.keymap.set('n', '<leader>qq', function()
   end
 end, { desc = "[Q]uickfix Toggle" })
 
-vim.keymap.set('n', '<leader>qn', vim.cmd.cnext, { desc = "[Q]uickfix Open" })
-vim.keymap.set('n', '<leader>qp', vim.cmd.cprev, { desc = "[Q]uickfix Open" })
+vim.keymap.set('n', '<leader>qn', vim.cmd.cnext, { desc = "[Q]uickfix Next" })
+vim.keymap.set('n', '<leader>qp', vim.cmd.cprev, { desc = "[Q]uickfix Prev" })
 vim.keymap.set('n', '<leader>qd', vim.diagnostic.setqflist, { desc = "[Q]uickfix [D]iagnostics" })
+vim.keymap.set('n', '<leader>qg', ':Git mergetool<CR>', { desc = "[Q]uickfix [G]it Merge Tool" })
 vim.keymap.set('n', '<leader>qc', function()
   vim.fn.setqflist({}); vim.cmd.cclose()
 end, { desc = "[Q]uickfix [C]lear" })
@@ -656,3 +659,4 @@ vim.cmd('hi! SignColumn guibg=none ctermbg=none')
 -- require("ibl").setup { scope = { highlight = highlight } }
 --
 -- hooks.register(hooks.type.SCOPE_HIGHLIGHT, hooks.builtin.scope_highlight_from_extmark)
+
