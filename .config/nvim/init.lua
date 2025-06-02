@@ -16,7 +16,7 @@ vim.keymap.set("n", "<C-d>", "<C-d>zz")
 vim.keymap.set("n", "<C-u>", "<C-u>zz")
 vim.keymap.set("n", "<C-f>", "<C-f>zz")
 vim.keymap.set("n", "<C-b>", "<C-b>zz")
-vim.api.nvim_set_option("clipboard","unnamed")
+vim.api.nvim_set_option("clipboard", "unnamed")
 
 -- LAZY PACKAGE MANAGER
 
@@ -660,3 +660,15 @@ vim.cmd('hi! SignColumn guibg=none ctermbg=none')
 --
 -- hooks.register(hooks.type.SCOPE_HIGHLIGHT, hooks.builtin.scope_highlight_from_extmark)
 
+local function open_cursor_ide()
+  local file_path = vim.fn.expand('%:p')
+  local line_number = vim.fn.line('.')
+  local cursor_command = string.format("cursor -g %s:%s", file_path, line_number)
+  vim.fn.system(string.format("%s", cursor_command))
+end
+
+vim.api.nvim_create_user_command(
+  'Cursor',
+  open_cursor_ide,
+  { desc = "Open Cursor IDE at the current buffer location" }
+)
