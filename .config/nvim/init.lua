@@ -166,7 +166,6 @@ require("lazy").setup({
       suppressed_dirs = { '~/', '~/Projects', '~/Downloads', '/' },
     }
   },
-  { 'echasnovski/mini.surround', version = '*' },
   {
     "ThePrimeagen/harpoon",
     branch = "harpoon2",
@@ -333,7 +332,6 @@ end)
 require('Comment').setup()
 require('ts_context_commentstring').setup({ enable_autocmd = false })
 require('mini.surround').setup()
-vim.keymap.set({ 'n', 'x' }, 's', '<Nop>')
 require('mason').setup({})
 require('mason-lspconfig').setup({
   ensure_installed = {
