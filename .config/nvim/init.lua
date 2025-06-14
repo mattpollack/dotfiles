@@ -16,6 +16,7 @@ vim.keymap.set("n", "<C-d>", "<C-d>zz")
 vim.keymap.set("n", "<C-u>", "<C-u>zz")
 vim.keymap.set("n", "<C-f>", "<C-f>zz")
 vim.keymap.set("n", "<C-b>", "<C-b>zz")
+vim.api.nvim_set_option("clipboard", "unnamed")
 
 -- LAZY PACKAGE MANAGER
 
@@ -108,7 +109,6 @@ require("lazy").setup({
   },
   'nvim-treesitter/playground',
   'mbbill/undotree',
-  'tpope/vim-fugitive',
   'williamboman/mason.nvim',
   'williamboman/mason-lspconfig.nvim',
   { 'VonHeikemen/lsp-zero.nvim',                  branch = 'v3.x' },
@@ -157,7 +157,8 @@ require("lazy").setup({
       { "<c-\\>", "<cmd><C-U>TmuxNavigatePrevious<cr>" },
     },
   },
-  { "MunifTanjim/prettier.nvim" },
+  -- { "MunifTanjim/prettier.nvim" },
+  -- { "jose-elias-alvarez/null-ls.nvim" },
   {
     'rmagatti/auto-session',
     lazy = false,
@@ -165,7 +166,6 @@ require("lazy").setup({
       suppressed_dirs = { '~/', '~/Projects', '~/Downloads', '/' },
     }
   },
-  { 'echasnovski/mini.surround', version = '*' },
   {
     "ThePrimeagen/harpoon",
     branch = "harpoon2",
@@ -179,18 +179,17 @@ require("lazy").setup({
       "nvim-treesitter/nvim-treesitter",
     },
   },
-  { 'echasnovski/mini.nvim', version = '*' },
+  { 'echasnovski/mini.nvim',     version = '*' },
   { 'itchyny/vim-qfedit' },
---   {
---     "lukas-reineke/indent-blankline.nvim",
---     main = "ibl",
---     ---@module "ibl"
---     ---@type ibl.config
---     opts = {},
---   }
-
-
   'catgoose/telescope-helpgrep.nvim',
+  --   "lukas-reineke/indent-blankline.nvim",
+  --   main = "ibl",
+  --   ---@module "ibl"
+  --   ---@type ibl.config
+  --   opts = {},
+  -- }
+
+  'tpope/vim-fugitive',
 })
 
 
@@ -313,9 +312,10 @@ vim.keymap.set('n', '<leader>qq', function()
   end
 end, { desc = "[Q]uickfix Toggle" })
 
-vim.keymap.set('n', '<leader>qn', vim.cmd.cnext, { desc = "[Q]uickfix Open" })
-vim.keymap.set('n', '<leader>qp', vim.cmd.cprev, { desc = "[Q]uickfix Open" })
+vim.keymap.set('n', '<leader>qn', vim.cmd.cnext, { desc = "[Q]uickfix Next" })
+vim.keymap.set('n', '<leader>qp', vim.cmd.cprev, { desc = "[Q]uickfix Prev" })
 vim.keymap.set('n', '<leader>qd', vim.diagnostic.setqflist, { desc = "[Q]uickfix [D]iagnostics" })
+vim.keymap.set('n', '<leader>qg', ':Git mergetool<CR>', { desc = "[Q]uickfix [G]it Merge Tool" })
 vim.keymap.set('n', '<leader>qc', function()
   vim.fn.setqflist({}); vim.cmd.cclose()
 end, { desc = "[Q]uickfix [C]lear" })
@@ -333,7 +333,6 @@ end)
 require('Comment').setup()
 require('ts_context_commentstring').setup({ enable_autocmd = false })
 require('mini.surround').setup()
-vim.keymap.set({ 'n', 'x' }, 's', '<Nop>')
 require('mason').setup({})
 require('mason-lspconfig').setup({
   ensure_installed = {
@@ -343,7 +342,6 @@ require('mason-lspconfig').setup({
     lsp_zero.default_setup,
   },
 })
-
 require('lspconfig').lua_ls.setup({
   settings = {
     Lua = {
@@ -378,25 +376,61 @@ require('telescope').setup {
   }
 }
 
-require("prettier").setup({
-  bin = 'prettier',
-  filetypes = {
-    "css",
-    "graphql",
-    "html",
-    "javascript",
-    "javascriptreact",
-    "json",
-    "less",
-    "markdown",
-    "scss",
-    "typescript",
-    "typescriptreact",
-    "yaml",
-  },
-})
-
--- CUSTOM COMMANDS
+-- require("prettier").setup({
+--   bin = 'prettier',
+--   filetypes = {
+--     "css",
+--     "graphql",
+--     "html",
+--     "javascript",
+--     "javascriptreact",
+--     "json",
+--     "less",
+--     "markdown",
+--     "scss",
+--     "typescript",
+--     "typescriptreact",
+--     "yaml",
+--   },
+--   cli_options = {
+--     config_precedence = "prefer-file"
+--   }
+-- })
+--
+-- local null_ls = require("null-ls")
+--
+-- local group = vim.api.nvim_create_augroup("lsp_format_on_save", { clear = false })
+-- local event = "BufWritePre" -- or "BufWritePost"
+-- local async = event == "BufWritePost"
+--
+-- null_ls.setup({
+--   on_attach = function(client, bufnr)
+--     --if client.supports_method("textDocument/formatting") then
+--       -- vim.keymap.set("n", "<Leader>f", function()
+--       --   vim.lsp.buf.format({ bufnr = vim.api.nvim_get_current_buf() })
+--       -- end, { buffer = bufnr, desc = "[lsp] format" })
+--
+--       -- format on save
+--       vim.api.nvim_clear_autocmds({ buffer = bufnr, group = group })
+--       vim.api.nvim_create_autocmd(event, {
+--         buffer = bufnr,
+--         group = group,
+--         callback = function()
+--           vim.lsp.buf.format({ bufnr = bufnr, async = async })
+--         end,
+--         desc = "[lsp] format on save",
+--       })
+--     --end
+--
+--     -- if client.supports_method("textDocument/rangeFormatting") then
+--     --   vim.keymap.set("x", "<Leader>f", function()
+--     --     vim.lsp.buf.format({ bufnr = vim.api.nvim_get_current_buf() })
+--     --   end, { buffer = bufnr, desc = "[lsp] format" })
+--     -- end
+--   end,
+-- })
+--
+-- -- CUSTOM COMMANDS
 
 vim.api.nvim_create_user_command("Godoc", function(opts)
   vim.fn.jobstart('open "https://pkg.go.dev/search?q=' .. opts.args .. '"', { detach = true })
@@ -660,3 +694,66 @@ vim.cmd('hi! SignColumn guibg=none ctermbg=none')
 -- require("ibl").setup { scope = { highlight = highlight } }
 --
 -- hooks.register(hooks.type.SCOPE_HIGHLIGHT, hooks.builtin.scope_highlight_from_extmark)
+
+local function open_visible_buffers_cursor_ide()
+  local buffers = vim.fn.getbufinfo({ buflisted = true })
+  local command = "cursor "
+
+  for _, buf in ipairs(buffers) do
+    if buf.hidden == 0 and buf.loaded == 1 then
+      local file_path = buf.name
+      local line_number = vim.fn.line('.')
+      if file_path ~= "" then
+        command = command .. string.format("-g %s:%s ", file_path, line_number)
+      end
+    end
+  end
+
+  vim.fn.system(command)
+end
+
+vim.api.nvim_create_user_command(
+  'Cursor',
+  open_visible_buffers_cursor_ide,
+  { desc = "Open Cursor IDE for all visible buffers" }
+)
+
+vim.api.nvim_create_user_command('PrettierFormat', function()
+  local buf = vim.api.nvim_get_current_buf()
+  local filename = vim.api.nvim_buf_get_name(buf)
+
+  if filename == "" then
+    print("Buffer has no name. Please save the file first.")
+    return
+  end
+
+  vim.cmd('write')
+
+  local cmd = string.format('prettier --write "%s"', filename)
+  local result = vim.fn.system(cmd)
+
+  if vim.v.shell_error ~= 0 then
+    print("Prettier failed: " .. result)
+    return
+  end
+
+  vim.cmd('edit!')
+end, { desc = "Format current buffer with Prettier" })
+
+vim.api.nvim_create_autocmd("BufWritePre", {
+  pattern = {
+    "*.js", "*.jsx", "*.ts", "*.tsx",
+    "*.cjs", "*.mjs",
+    "*.json", "*.jsonc",
+    "*.css", "*.scss", "*.less",
+    "*.html",
+    "*.md", "*.markdown",
+    "*.yaml", "*.yml",
+    "*.graphql", "*.gql"
+  },
+  callback = function()
+    vim.cmd("PrettierFormat")
+  end,
+  desc = "Run PrettierFormat on save for TypeScript files",
+})
+>>>>>>> a4fd5314994b7423531bb4f62522ba832639403a
