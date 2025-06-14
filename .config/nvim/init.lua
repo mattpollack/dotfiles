@@ -756,4 +756,3 @@ vim.api.nvim_create_autocmd("BufWritePre", {
   end,
   desc = "Run PrettierFormat on save for TypeScript files",
 })
->>>>>>> a4fd5314994b7423531bb4f62522ba832639403a
