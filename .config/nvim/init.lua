@@ -16,6 +16,10 @@ vim.keymap.set("n", "<C-d>", "<C-d>zz")
 vim.keymap.set("n", "<C-u>", "<C-u>zz")
 vim.keymap.set("n", "<C-f>", "<C-f>zz")
 vim.keymap.set("n", "<C-b>", "<C-b>zz")
+vim.keymap.set("n", "n", "nzz")
+vim.keymap.set("n", "N", "Nzz")
+vim.keymap.set("n", "<C-i>", "<C-i>zz")
+vim.keymap.set("n", "<C-o>", "<C-o>zz")
 vim.api.nvim_set_option("clipboard", "unnamed")
 
 -- LAZY PACKAGE MANAGER
@@ -130,6 +134,19 @@ require("lazy").setup({
     'github/copilot.vim',
     enabled = is_work_computer()
   },
+  {
+    "supermaven-inc/supermaven-nvim",
+    config = function()
+      require("supermaven-nvim").setup({
+        keymaps = {
+          accept_suggestion = "<C-y>",
+          clear_suggestion = "<C-p>",
+          accept_word = "<C-j>",
+        },
+      })
+    end,
+    enabled = not is_work_computer()
+  },
   --{
   --  'folke/which-key.nvim',
   --  --event = "VeryLazy",
@@ -179,7 +196,7 @@ require("lazy").setup({
       "nvim-treesitter/nvim-treesitter",
     },
   },
-  { 'echasnovski/mini.nvim',     version = '*' },
+  { 'echasnovski/mini.nvim', version = '*' },
   { 'itchyny/vim-qfedit' },
   'catgoose/telescope-helpgrep.nvim',
   --   "lukas-reineke/indent-blankline.nvim",
