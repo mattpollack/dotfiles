@@ -717,6 +717,15 @@ vim.api.nvim_create_user_command(
   { desc = "Open Cursor IDE for all visible buffers" }
 )
 
+vim.api.nvim_create_user_command('YankFilePath', function()
+  local filepath = vim.api.nvim_buf_get_name(0)
+  if filepath == "" then
+    return
+  end
+  vim.fn.setreg('+', filepath)
+end, { desc = "Yank current buffer's file path to clipboard" })
+
+
 vim.api.nvim_create_user_command('PrettierFormat', function()
   local buf = vim.api.nvim_get_current_buf()
   local filename = vim.api.nvim_buf_get_name(buf)
