@@ -12,6 +12,7 @@ vim.opt.hlsearch = true
 vim.opt.incsearch = true
 vim.opt.ignorecase = true
 vim.opt.cursorcolumn = true
+vim.opt.scrolloff = 999
 vim.keymap.set("n", "<C-d>", "<C-d>zz")
 vim.keymap.set("n", "<C-u>", "<C-u>zz")
 vim.keymap.set("n", "<C-f>", "<C-f>zz")
@@ -62,7 +63,7 @@ require("lazy").setup({
     config = function()
       local configs = require("nvim-treesitter.configs")
       configs.setup({
-        ensure_installed = { "lua", "go", "gdscript" },
+        ensure_installed = { "lua", "go", "gdscript", "typescript" },
         highlight = { enable = true },
         indent = { enable = true },
         incremental_selection = {
