@@ -55,7 +55,7 @@ end
 
 require("lazy").setup({
   "rebelot/kanagawa.nvim",
-  { 'JoosepAlviste/nvim-ts-context-commentstring' }, -- Not working??
+  { 'JoosepAlviste/nvim-ts-context-commentstring' },
   {
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
@@ -212,13 +212,21 @@ require("lazy").setup({
     event = "VeryLazy",
     opts = {},
     keys = {
-      { "s", mode = { "n", "x", "o" }, function() require("flash").jump() end, desc = "Flash" },
-      { "S", mode = { "n", "x", "o" }, function() require("flash").treesitter() end, desc = "Flash Treesitter" },
-      { "r", mode = "o", function() require("flash").remote() end, desc = "Remote Flash" },
-      { "R", mode = { "o", "x" }, function() require("flash").treesitter_search() end, desc = "Treesitter Search" },
-      { "<c-s>", mode = { "c" }, function() require("flash").toggle() end, desc = "Toggle Flash Search" },
+      { "s",     mode = { "n", "x", "o" }, function() require("flash").jump() end,              desc = "Flash" },
+      { "S",     mode = { "n", "x", "o" }, function() require("flash").treesitter() end,        desc = "Flash Treesitter" },
+      { "r",     mode = "o",               function() require("flash").remote() end,            desc = "Remote Flash" },
+      { "R",     mode = { "o", "x" },      function() require("flash").treesitter_search() end, desc = "Treesitter Search" },
+      { "<c-s>", mode = { "c" },           function() require("flash").toggle() end,            desc = "Toggle Flash Search" },
     },
-  }
+  },
+  {
+    'mfussenegger/nvim-dap',
+    dependencies = {
+      'rcarriga/nvim-dap-ui',
+      'williamboman/mason.nvim',
+      'jay-babu/mason-nvim-dap.nvim'
+    }
+  },
 })
 
 
@@ -349,6 +357,30 @@ vim.keymap.set('n', '<leader>qc', function()
   vim.fn.setqflist({}); vim.cmd.cclose()
 end, { desc = "[Q]uickfix [C]lear" })
 vim.api.nvim_set_keymap('n', '<leader>qf', ':InsertQuickfixFiles<CR>', { noremap = true, silent = true })
+
+-- DAP De[b]ug
+
+local dap = require('dap')
+
+dap.adapters.godot = {
+  type = 'server',
+  host = '127.0.0.1',
+  port = 6006
+}
+
+dap.configurations.gdscript = {
+  type = 'godot',
+  request = 'launch',
+  name = 'Launch scene',
+  project = '${workspaceFolder}',
+  launch_scene = true
+}
+
+vim.keymap.set('n', '<leader>bc', dap.continue, { desc = "De[b]ug [C]ontinue" })
+vim.keymap.set('n', '<leader>bi', dap.step_into, { desc = "De[b]ug Step [I]nto" })
+vim.keymap.set('n', '<leader>bo', dap.step_out, { desc = "De[b]ug Step [O]ut" })
+vim.keymap.set('n', '<leader>br', dap.repl.toggle, { desc = "De[b]ug [R]epl" })
+vim.keymap.set('n', '<leader>bp', dap.toggle_breakpoint, { desc = "De[b]ug Break[p]oint" })
 
 -- MISC ONE OFF BINDINGS
 
@@ -794,3 +826,11 @@ vim.api.nvim_create_autocmd("BufWritePre", {
   end,
   desc = "Run PrettierFormat on save for TypeScript files",
 })
+
+local gdproject = io.open(vim.fn.getcwd() .. '/project.godot', 'r')
+
+if gdproject then
+  io.close(gdproject)
+  vim.fn.serverstart './godothost'
+  print("Listening on ./godothost")
+end
