@@ -227,7 +227,7 @@ require("lazy").setup({
       'williamboman/mason.nvim',
       'jay-babu/mason-nvim-dap.nvim'
     }
-  },
+  }
 })
 
 
