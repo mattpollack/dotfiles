@@ -358,6 +358,7 @@ vim.keymap.set('n', '<leader>qc', function()
   vim.fn.setqflist({}); vim.cmd.cclose()
 end, { desc = "[Q]uickfix [C]lear" })
 vim.api.nvim_set_keymap('n', '<leader>qf', ':InsertQuickfixFiles<CR>', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<leader>qs', ':SearchToQF<CR>', { noremap = true, silent = true })
 
 -- DAP De[b]ug
 
@@ -835,3 +836,43 @@ if gdproject then
   vim.fn.serverstart './godothost'
   print("Listening on ./godothost")
 end
+
+vim.api.nvim_create_user_command('SearchToQF', function()
+  local search = vim.fn.getreg('/')
+  if search == '' then
+    vim.notify('No active search pattern.', vim.log.levels.WARN)
+    return
+  end
+
+  local bufnr = vim.api.nvim_get_current_buf()
+  local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+  local qf_list = {}
+  local pattern = search
+
+  for lnum, line in ipairs(lines) do
+    local start = 1
+    while true do
+      local s, e = string.find(line, pattern, start)
+      if not s then break end
+      table.insert(qf_list, {
+        bufnr = bufnr,
+        lnum = lnum,
+        col = s,
+        text = line,
+      })
+      start = e + 1
+    end
+  end
+
+  if #qf_list == 0 then
+    vim.notify('No matches found for pattern: ' .. pattern, vim.log.levels.INFO)
+    return
+  end
+
+  vim.fn.setqflist({}, ' ', {
+    title = 'Search: ' .. pattern,
+    items = qf_list,
+  })
+  vim.cmd('copen')
+end, { desc = 'Move all search occurrences to quickfix list in active file' })
+
