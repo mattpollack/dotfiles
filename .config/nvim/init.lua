@@ -220,6 +220,7 @@ require("lazy").setup({
       { "<c-s>", mode = { "c" },           function() require("flash").toggle() end,            desc = "Toggle Flash Search" },
     },
   },
+  { "nvim-neotest/nvim-nio" },
   {
     'mfussenegger/nvim-dap',
     dependencies = {
@@ -362,6 +363,7 @@ vim.api.nvim_set_keymap('n', '<leader>qf', ':InsertQuickfixFiles<CR>', { noremap
 -- DAP De[b]ug
 
 local dap = require('dap')
+require('dapui').setup()
 
 dap.adapters.godot = {
   type = 'server',
@@ -370,11 +372,13 @@ dap.adapters.godot = {
 }
 
 dap.configurations.gdscript = {
-  type = 'godot',
-  request = 'launch',
-  name = 'Launch scene',
-  project = '${workspaceFolder}',
-  launch_scene = true
+  {
+    type = 'godot',
+    request = 'launch',
+    name = 'Launch scene',
+    project = '${workspaceFolder}',
+    launch_scene = true
+  }
 }
 
 vim.keymap.set('n', '<leader>bc', dap.continue, { desc = "De[b]ug [C]ontinue" })
@@ -832,6 +836,6 @@ local gdproject = io.open(vim.fn.getcwd() .. '/project.godot', 'r')
 
 if gdproject then
   io.close(gdproject)
-  vim.fn.serverstart './godothost'
-  print("Listening on ./godothost")
+  vim.fn.serverstart '/Users/m/.config/godothost'
+  print("Listening on /godothost")
 end
