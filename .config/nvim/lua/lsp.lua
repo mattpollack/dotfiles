@@ -2,20 +2,7 @@ local cmp = require('cmp')
 local luasnip = require('luasnip')
 
 local on_attach = function(client, bufnr)
-  -- Defined in keymaps
-  -- local bufopts = { noremap=true, silent=true, buffer=bufnr }
-  --
-  -- vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, bufopts)
-  -- vim.keymap.set('n', 'gd', vim.lsp.buf.definition, bufopts)
-  -- vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
-  -- vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, bufopts)
-  -- vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, bufopts)
-  -- vim.keymap.set('n', '<space>wa', vim.lsp.buf.add_workspace_folder, bufopts)
-  -- vim.keymap.set('n', '<space>wr', vim.lsp.buf.remove_workspace_folder, bufopts)
-  -- vim.keymap.set('n', '<space>wl', function()
-  --   print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-  -- end, bufopts)
-  -- vim.keymap.set('n', 'gr', vim.lsp.buf.references, bufopts)
+  -- print("LSP attached: " .. client.name .. " to buffer " .. bufnr)
 end
 
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
@@ -79,16 +66,31 @@ cmp.setup.cmdline(':', {
 require('Comment').setup()
 require('ts_context_commentstring').setup({ enable_autocmd = false })
 
-require('lspconfig').lua_ls.setup({
+local lspconfig = require('lspconfig')
+
+lspconfig.lua_ls.setup({
   on_attach = on_attach,
   capabilities = capabilities,
+  root_dir = function(fname)
+    return lspconfig.util.find_git_ancestor(fname) or vim.fn.getcwd()
+  end,
   settings = {
     Lua = {
       diagnostics = {
         globals = { 'vim' }
+      },
+      workspace = {
+        checkThirdParty = false,
       }
     }
   }
+})
+
+lspconfig.gdscript.setup({
+  cmd = vim.lsp.rpc.connect("127.0.0.1", 6005),
+  on_attach = on_attach,
+  capabilities = capabilities,
+  root_dir = lspconfig.util.root_pattern("project.godot"),
 })
 
 vim.diagnostic.config({

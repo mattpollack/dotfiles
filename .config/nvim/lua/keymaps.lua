@@ -46,6 +46,16 @@ vim.keymap.set('n', '<leader>le', vim.diagnostic.open_float, { desc = "[L]SP [E]
 vim.keymap.set('n', '<leader>lgd', vim.lsp.buf.definition, { desc = "[L]SP [G]oto [D]efinition" })
 vim.keymap.set('n', '<leader>lgr', builtin.lsp_references, { desc = "[L]SP [G]oto [R]ereferences" })
 vim.keymap.set('n', '<leader>lgi', vim.lsp.buf.implementation, { desc = "[L]SP [G]oto [I]mplementation" })
+vim.keymap.set('n', '<leader>ls', function()
+  local clients = vim.lsp.get_clients({ bufnr = 0 })
+  if #clients == 0 then
+    print("No LSP clients attached to current buffer")
+  else
+    for _, client in ipairs(clients) do
+      print("LSP client: " .. client.name .. " (ID: " .. client.id .. ")")
+    end
+  end
+end, { desc = "[L]SP [S]tatus" })
 
 -- [D]iagnostic
 vim.keymap.set('n', '<leader>dn', vim.diagnostic.goto_next, { desc = "[D]iagnostic [N]ext" })
