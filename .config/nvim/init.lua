@@ -2,6 +2,7 @@ require('options')
 require('lazy-setup')
 
 require("lazy").setup({
+  { import = "plugins.lsp" },
   { import = "plugins.treesitter" },
   { import = "plugins.telescope" },
   { import = "plugins.ai" },
@@ -9,7 +10,6 @@ require("lazy").setup({
   { import = "plugins.editor" },
   { import = "plugins.debug" },
   { import = "plugins.theme" },
-  { import = "plugins.lsp" },
 })
 
 require('keymaps')

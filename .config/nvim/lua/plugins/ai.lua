@@ -35,13 +35,15 @@ return {
           },
         },
         adapters = {
-          anthropic = function()
-            return require("codecompanion.adapters").extend("anthropic", {
-              env = {
-                api_key = "cmd:op read op://APIs/Anthropic/password --no-newline",
-              },
-            })
-          end,
+          http = {
+            anthropic = function()
+              return require("codecompanion.adapters").extend("anthropic", {
+                env = {
+                  api_key = "cmd:op read op://APIs/Anthropic/password --no-newline",
+                },
+              })
+            end,
+          }
         },
         opts = {
           log_level = "DEBUG",
