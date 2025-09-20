@@ -10,6 +10,7 @@ require("lazy").setup({
   { import = "plugins.editor" },
   { import = "plugins.debug" },
   { import = "plugins.theme" },
+  { import = "plugins.fennel" },
 })
 
 require('keymaps')
@@ -17,3 +18,6 @@ require('commands')
 require('autocmds')
 require('theme')
 require('lsp')
+
+-- Load Fennel modules
+pcall(require, 'hello')

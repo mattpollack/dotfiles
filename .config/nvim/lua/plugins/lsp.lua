@@ -6,5 +6,19 @@ return {
   { 'hrsh7th/cmp-buffer' },
   { 'hrsh7th/cmp-path' },
   { 'hrsh7th/cmp-cmdline' },
-  { 'saadparwaiz1/cmp_luasnip' },
+  { 'folke/neodev.nvim' },
+  {
+    "stevearc/conform.nvim",
+    opts = {
+      formatters_by_ft = {
+        fennel = { "fnlfmt" },
+      },
+      -- Optional: Auto-format on save
+      format_on_save = { timeout_ms = 500, lsp_fallback = true },
+    },
+    init = function()
+      vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
+    end,
+  }, { 'saadparwaiz1/cmp_luasnip' },
 }
+

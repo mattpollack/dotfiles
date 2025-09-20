@@ -68,6 +68,9 @@ require('ts_context_commentstring').setup({ enable_autocmd = false })
 
 local lspconfig = require('lspconfig')
 
+-- Setup neodev for better vim API support
+require("neodev").setup({})
+
 lspconfig.lua_ls.setup({
   on_attach = on_attach,
   capabilities = capabilities,
@@ -91,6 +94,23 @@ lspconfig.gdscript.setup({
   on_attach = on_attach,
   capabilities = capabilities,
   root_dir = lspconfig.util.root_pattern("project.godot"),
+})
+
+-- Fennel LSP setup
+lspconfig.fennel_ls.setup({
+  on_attach = on_attach,
+  capabilities = capabilities,
+  root_dir = lspconfig.util.root_pattern(".git", "fnl"),
+  settings = {
+    fennel = {
+      workspace = {
+        library = vim.api.nvim_list_runtime_paths(),
+      },
+      diagnostics = {
+        globals = { "vim" },
+      },
+    },
+  },
 })
 
 vim.diagnostic.config({
