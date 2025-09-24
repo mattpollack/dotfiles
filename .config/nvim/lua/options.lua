@@ -1,5 +1,3 @@
-local vim = vim
-
 vim.wo.number = true
 vim.wo.relativenumber = true
 vim.o.tabstop = 2
@@ -30,3 +28,4 @@ vim.g.copilot_tab_fallback = ""
 return {
   is_work_computer = is_work_computer
 }
+

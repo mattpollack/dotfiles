@@ -20,7 +20,11 @@ vim.keymap.set("n", "N", "Nzz")
 vim.keymap.set("n", "<C-i>", "<C-i>zz")
 vim.keymap.set("n", "<C-o>", "<C-o>zz")
 
-vim.api.nvim_set_keymap("i", "<C-y>", 'copilot#Accept("<CR>")', { silent = true, expr = true })
+local options = require('options')
+
+if options.is_work_computer then
+  vim.api.nvim_set_keymap("i", "<C-y>", 'copilot#Accept("<CR>")', { silent = true, expr = true })
+end
 
 local builtin = require('telescope.builtin')
 local telescope = require("telescope")

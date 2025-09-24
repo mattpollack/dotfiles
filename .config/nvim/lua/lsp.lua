@@ -2,7 +2,30 @@ local cmp = require('cmp')
 local luasnip = require('luasnip')
 
 local on_attach = function(client, bufnr)
-  -- print("LSP attached: " .. client.name .. " to buffer " .. bufnr)
+  print("LSP attached: " .. client.name .. " to buffer " .. bufnr)
+  
+  -- Enable completion triggered by <c-x><c-o>
+  vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
+
+  -- Mappings
+  local opts = { noremap = true, silent = true, buffer = bufnr }
+  vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
+  vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
+  vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
+  vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
+  vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, opts)
+  vim.keymap.set('n', '<leader>wa', vim.lsp.buf.add_workspace_folder, opts)
+  vim.keymap.set('n', '<leader>wr', vim.lsp.buf.remove_workspace_folder, opts)
+  vim.keymap.set('n', '<leader>wl', function()
+    print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+  end, opts)
+  vim.keymap.set('n', '<leader>D', vim.lsp.buf.type_definition, opts)
+  vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, opts)
+  vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, opts)
+  vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
+  vim.keymap.set('n', '<leader>f', function()
+    vim.lsp.buf.format { async = true }
+  end, opts)
 end
 
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
@@ -44,7 +67,15 @@ cmp.setup({
   }, {
     { name = 'buffer' },
     { name = 'path' },
-  })
+  }),
+  -- Enable completion on typing
+  completion = {
+    completeopt = 'menu,menuone,noinsert,noselect'
+  },
+  -- Show completion menu automatically
+  experimental = {
+    ghost_text = true,
+  },
 })
 
 cmp.setup.cmdline('/', {
@@ -111,6 +142,47 @@ lspconfig.fennel_ls.setup({
       },
     },
   },
+})
+
+lspconfig.ts_ls.setup({
+  on_attach = on_attach,
+  capabilities = capabilities,
+  root_dir = lspconfig.util.root_pattern("package.json", "tsconfig.json", "jsconfig.json", ".git"),
+  settings = {
+    typescript = {
+      inlayHints = {
+        enabled = true,
+        includeInlayParameterNameHints = "all",
+        includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+        includeInlayFunctionParameterTypeHints = true,
+        includeInlayVariableTypeHints = true,
+        includeInlayPropertyDeclarationTypeHints = true,
+        includeInlayFunctionLikeReturnTypeHints = true,
+        includeInlayEnumMemberValueHints = true,
+      },
+      preferences = {
+        includePackageJsonAutoImports = "auto",
+        importModuleSpecifierPreference = "relative",
+      },
+    },
+    javascript = {
+      inlayHints = {
+        enabled = true,
+        includeInlayParameterNameHints = "all",
+        includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+        includeInlayFunctionParameterTypeHints = true,
+        includeInlayVariableTypeHints = true,
+        includeInlayPropertyDeclarationTypeHints = true,
+        includeInlayFunctionLikeReturnTypeHints = true,
+        includeInlayEnumMemberValueHints = true,
+      },
+      preferences = {
+        includePackageJsonAutoImports = "auto",
+        importModuleSpecifierPreference = "relative",
+      },
+    },
+  },
+  filetypes = { "typescript", "typescriptreact", "javascript", "javascriptreact" },
 })
 
 vim.diagnostic.config({
