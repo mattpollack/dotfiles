@@ -20,4 +20,4 @@ require('theme')
 require('lsp')
 
 -- Load Fennel modules
-pcall(require, 'hello')
+require('custom-notes/notes').setup({})

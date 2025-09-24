@@ -11,7 +11,7 @@ return {
     "stevearc/conform.nvim",
     opts = {
       formatters_by_ft = {
-        fennel = { "fnlfmt" },
+        -- None rn
       },
       -- Optional: Auto-format on save
       format_on_save = { timeout_ms = 500, lsp_fallback = true },
@@ -21,4 +21,3 @@ return {
     end,
   }, { 'saadparwaiz1/cmp_luasnip' },
 }
-
