@@ -62,9 +62,9 @@ return {
               ['a?'] = '@conditional.outer',
               ['i?'] = '@conditional.inner',
 
-              -- Loops (for/while)
-              ['al'] = '@loop.outer',
-              ['il'] = '@loop.inner',
+              -- Block
+              ['ab'] = '@block.outer',
+              ['ib'] = '@block.inner',
 
               -- Statements
               ['as'] = '@statement.outer',
