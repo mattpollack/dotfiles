@@ -1,31 +1,45 @@
 local cmp = require('cmp')
 local luasnip = require('luasnip')
+local keymaps = require('keymaps')
 
 local on_attach = function(client, bufnr)
   print("LSP attached: " .. client.name .. " to buffer " .. bufnr)
-  
+
   -- Enable completion triggered by <c-x><c-o>
   vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
 
   -- Mappings
   local opts = { noremap = true, silent = true, buffer = bufnr }
-  vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
-  vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
-  vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
-  vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
-  vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, opts)
-  vim.keymap.set('n', '<leader>wa', vim.lsp.buf.add_workspace_folder, opts)
-  vim.keymap.set('n', '<leader>wr', vim.lsp.buf.remove_workspace_folder, opts)
-  vim.keymap.set('n', '<leader>wl', function()
-    print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-  end, opts)
-  vim.keymap.set('n', '<leader>D', vim.lsp.buf.type_definition, opts)
-  vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, opts)
-  vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, opts)
-  vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
-  vim.keymap.set('n', '<leader>f', function()
-    vim.lsp.buf.format { async = true }
-  end, opts)
+  -- vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
+  -- vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
+  -- vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
+  -- vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
+  -- vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, opts)
+  -- vim.keymap.set('n', '<leader>wa', vim.lsp.buf.add_workspace_folder, opts)
+  -- vim.keymap.set('n', '<leader>wr', vim.lsp.buf.remove_workspace_folder, opts)
+  -- vim.keymap.set('n', '<leader>wl', function()
+  --   print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+  -- end, opts)
+  -- vim.keymap.set('n', '<leader>D', vim.lsp.buf.type_definition, opts)
+  -- vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, opts)
+  -- vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, opts)
+  -- vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
+  -- vim.keymap.set('n', '<leader>f', function()
+  --   vim.lsp.buf.format { async = true }
+  -- end, opts)
+
+  -- This doesn't seem to be working??
+
+  keymaps.lsp_keymaps(opts)
+
+  -- Special keymap for TypeScript: add current directory as workspace folder
+  if client.name == "ts_ls" then
+    vim.keymap.set('n', '<leader>wt', function()
+      local current_dir = vim.fn.expand('%:p:h')
+      vim.lsp.buf.add_workspace_folder(current_dir)
+      print("Added workspace folder: " .. current_dir)
+    end, opts)
+  end
 end
 
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
@@ -147,7 +161,17 @@ lspconfig.fennel_ls.setup({
 lspconfig.ts_ls.setup({
   on_attach = on_attach,
   capabilities = capabilities,
-  root_dir = lspconfig.util.root_pattern("package.json", "tsconfig.json", "jsconfig.json", ".git"),
+  root_dir = function(fname)
+    -- First try to find a project root
+    local root = lspconfig.util.root_pattern("package.json", "tsconfig.json", "jsconfig.json", ".git")(fname)
+    if root then
+      return root
+    end
+
+    -- If no project root found, use current working directory
+    -- This allows LSP to work outside of project directories
+    return vim.fn.getcwd()
+  end,
   settings = {
     typescript = {
       inlayHints = {

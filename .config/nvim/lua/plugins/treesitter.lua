@@ -5,7 +5,7 @@ return {
     config = function()
       local configs = require("nvim-treesitter.configs")
       configs.setup({
-        ensure_installed = { "lua", "go", "gdscript", "typescript", "tsx", "javascript", "jsx", "fennel" },
+        ensure_installed = { "lua", "go", "gdscript", "typescript", "tsx", "javascript", "fennel" },
         highlight = { enable = true },
         indent = { enable = true },
         incremental_selection = {

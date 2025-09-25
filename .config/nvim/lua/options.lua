@@ -11,7 +11,7 @@ vim.o.incsearch = true
 vim.o.ignorecase = true
 vim.o.cursorcolumn = true
 vim.o.scrolloff = 20
-vim.o.winborder = "rounded"
+-- vim.o.winborder = "rounded"
 
 vim.api.nvim_set_option("clipboard", "unnamed")
 
@@ -28,4 +28,3 @@ vim.g.copilot_tab_fallback = ""
 return {
   is_work_computer = is_work_computer
 }
-

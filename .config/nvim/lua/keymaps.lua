@@ -41,25 +41,28 @@ vim.keymap.set('n', '<leader>gs', vim.cmd.Git, { desc = "[G]it [S]tatus" })
 vim.keymap.set('n', '<leader>gf', builtin.git_files, { desc = "[G]it [F]iles" })
 
 -- [L]SP
-vim.keymap.set('n', '<leader>lr', vim.lsp.buf.rename, { desc = "[L]SP [R]ename" })
-vim.keymap.set('n', '<leader>la', vim.lsp.buf.code_action, { desc = "[L]SP [A]ction" })
-vim.keymap.set('n', '<leader>lf', vim.lsp.buf.format, { desc = "[L]SP [F]ormat" })
-vim.keymap.set('n', '<leader>lt', vim.lsp.buf.type_definition, { desc = "[L]SP [T]ype" })
-vim.keymap.set('n', '<leader>lh', vim.lsp.buf.hover, { desc = "[L]SP [H]over" })
-vim.keymap.set('n', '<leader>le', vim.diagnostic.open_float, { desc = "[L]SP [E]rror" })
-vim.keymap.set('n', '<leader>lgd', vim.lsp.buf.definition, { desc = "[L]SP [G]oto [D]efinition" })
-vim.keymap.set('n', '<leader>lgr', builtin.lsp_references, { desc = "[L]SP [G]oto [R]ereferences" })
-vim.keymap.set('n', '<leader>lgi', vim.lsp.buf.implementation, { desc = "[L]SP [G]oto [I]mplementation" })
-vim.keymap.set('n', '<leader>ls', function()
-  local clients = vim.lsp.get_clients({ bufnr = 0 })
-  if #clients == 0 then
-    print("No LSP clients attached to current buffer")
-  else
-    for _, client in ipairs(clients) do
-      print("LSP client: " .. client.name .. " (ID: " .. client.id .. ")")
+local function lsp_keymaps(opts)
+  vim.keymap.set('n', '<leader>lr', vim.lsp.buf.rename, opts)
+  vim.keymap.set('n', '<leader>la', vim.lsp.buf.code_action, opts)
+  vim.keymap.set('n', '<leader>lf', vim.lsp.buf.format, opts)
+  vim.keymap.set('n', '<leader>lt', vim.lsp.buf.type_definition, opts)
+  vim.keymap.set('n', '<leader>lh', vim.lsp.buf.hover, opts)
+  vim.keymap.set('n', '<leader>le', vim.diagnostic.open_float, opts)
+  vim.keymap.set('n', '<leader>lgd', vim.lsp.buf.definition, opts)
+  vim.keymap.set('n', '<leader>lgr', builtin.lsp_references, opts)
+  vim.keymap.set('n', '<leader>lgi', vim.lsp.buf.implementation, opts)
+  vim.keymap.set('n', '<leader>ls', function()
+    local clients = vim.lsp.get_clients({ bufnr = 0 })
+    if #clients == 0 then
+      print("No LSP clients attached to current buffer")
+    else
+      for _, client in ipairs(clients) do
+        print("LSP client: " .. client.name .. " (ID: " .. client.id .. ")")
+      end
     end
-  end
-end, { desc = "[L]SP [S]tatus" })
+  end, opts)
+end
+lsp_keymaps()
 
 -- [D]iagnostic
 vim.keymap.set('n', '<leader>dn', vim.diagnostic.goto_next, { desc = "[D]iagnostic [N]ext" })
@@ -107,3 +110,7 @@ vim.keymap.set({ "n", "v" }, "<leader>ac", "<cmd>CodeCompanionChat Toggle<cr>", 
 vim.keymap.set("n", "ga", "<cmd>CodeCompanionChat Add<cr>", { noremap = true, silent = true })
 vim.keymap.set("n", "gr", "<cmd>CodeCompanionChat Reject<cr>", { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<leader>af', ':InsertOpenBuffers<CR>', { noremap = true, silent = true })
+
+return {
+  lsp_keymaps = lsp_keymaps
+}
