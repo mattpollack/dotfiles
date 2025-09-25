@@ -111,6 +111,11 @@ vim.keymap.set("n", "ga", "<cmd>CodeCompanionChat Add<cr>", { noremap = true, si
 vim.keymap.set("n", "gr", "<cmd>CodeCompanionChat Reject<cr>", { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<leader>af', ':InsertOpenBuffers<CR>', { noremap = true, silent = true })
 
+-- [S]urround - Additional keymaps for surround functionality
+vim.keymap.set('n', '<leader>sr', 'ys', { desc = "[S]urround [R]egister (ys)" })
+vim.keymap.set('n', '<leader>sc', 'cs', { desc = "[S]urround [C]hange (cs)" })
+vim.keymap.set('n', '<leader>sd', 'ds', { desc = "[S]urround [D]elete (ds)" })
+
 return {
   lsp_keymaps = lsp_keymaps
 }
