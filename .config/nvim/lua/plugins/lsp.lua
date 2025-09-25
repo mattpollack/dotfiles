@@ -11,7 +11,7 @@ return {
     "stevearc/conform.nvim",
     opts = {
       formatters_by_ft = {
-        fennel = { "fnlfmt" },
+        -- fennel = { "fnlfmt" },
         typescript = { "prettier" },
         typescriptreact = { "prettier" },
         javascript = { "prettier" },
@@ -29,4 +29,3 @@ return {
     end,
   }, { 'saadparwaiz1/cmp_luasnip' },
 }
-
