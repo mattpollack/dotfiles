@@ -12,6 +12,7 @@ return {
     opts = {
       formatters_by_ft = {
         -- fennel = { "fnlfmt" },
+        python = { "black", "isort" },
         typescript = { "prettier" },
         typescriptreact = { "prettier" },
         javascript = { "prettier" },
