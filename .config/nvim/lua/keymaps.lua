@@ -22,7 +22,7 @@ vim.keymap.set("n", "<C-o>", "<C-o>zz")
 
 local options = require('options')
 
-if options.is_work_computer then
+if options.is_work_computer() then
   vim.api.nvim_set_keymap("i", "<C-y>", 'copilot#Accept("<CR>")', { silent = true, expr = true })
 end
 
