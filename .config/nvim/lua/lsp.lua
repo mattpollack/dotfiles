@@ -209,6 +209,39 @@ lspconfig.ts_ls.setup({
   filetypes = { "typescript", "typescriptreact", "javascript", "javascriptreact" },
 })
 
+-- Python LSP setup with Pyright
+lspconfig.pyright.setup({
+  on_attach = on_attach,
+  capabilities = capabilities,
+  root_dir = function(fname)
+    -- Look for Python project indicators
+    local root = lspconfig.util.root_pattern("pyproject.toml", "setup.py", "requirements.txt", "Pipfile", "pyrightconfig.json", ".git")(fname)
+    if root then
+      return root
+    end
+    
+    -- If no project root found, use current working directory
+    return vim.fn.getcwd()
+  end,
+  settings = {
+    python = {
+      analysis = {
+        autoImportCompletions = true,
+        autoSearchPaths = true,
+        diagnosticMode = "workspace",
+        useLibraryCodeForTypes = true,
+        typeCheckingMode = "basic",
+        inlayHints = {
+          functionReturnTypes = true,
+          variableTypes = true,
+          classVariableTypes = true,
+        },
+      },
+    },
+  },
+  filetypes = { "python" },
+})
+
 vim.diagnostic.config({
   virtual_text = true
 })
