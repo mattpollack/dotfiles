@@ -3,8 +3,6 @@ local luasnip = require('luasnip')
 local keymaps = require('keymaps')
 
 local on_attach = function(client, bufnr)
-  print("LSP attached: " .. client.name .. " to buffer " .. bufnr)
-
   -- Enable completion triggered by <c-x><c-o>
   vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
 
@@ -215,11 +213,12 @@ lspconfig.pyright.setup({
   capabilities = capabilities,
   root_dir = function(fname)
     -- Look for Python project indicators
-    local root = lspconfig.util.root_pattern("pyproject.toml", "setup.py", "requirements.txt", "Pipfile", "pyrightconfig.json", ".git")(fname)
+    local root = lspconfig.util.root_pattern("pyproject.toml", "setup.py", "requirements.txt", "Pipfile",
+      "pyrightconfig.json", ".git")(fname)
     if root then
       return root
     end
-    
+
     -- If no project root found, use current working directory
     return vim.fn.getcwd()
   end,
