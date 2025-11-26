@@ -241,6 +241,14 @@ lspconfig.pyright.setup({
   filetypes = { "python" },
 })
 
+-- Terraform LSP setup
+lspconfig.terraformls.setup({
+  on_attach = on_attach,
+  capabilities = capabilities,
+  root_dir = lspconfig.util.root_pattern(".terraform", ".git", "terraform.workspace"),
+  filetypes = { "terraform", "hcl", "tf" },
+})
+
 vim.diagnostic.config({
   virtual_text = true
 })
