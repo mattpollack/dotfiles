@@ -31,7 +31,13 @@ local telescope = require("telescope")
 
 -- [P]ROJECT
 vim.keymap.set('n', '<leader>pl', vim.cmd.Oil, { desc = "[P]roject [L]isting" })
-vim.keymap.set('n', '<leader>pf', builtin.find_files, { desc = "[P]roject [F]ind" })
+vim.keymap.set('n', '<leader>pf', function()
+  -- Use git_files in git repos to respect .gitignore, fallback to find_files
+  local ok = pcall(builtin.git_files, { show_untracked = true })
+  if not ok then
+    builtin.find_files()
+  end
+end, { desc = "[P]roject [F]ind" })
 vim.keymap.set({ 'n', 'v' }, '<leader>pg',
   function() telescope.extensions.live_grep_args.live_grep_args({ default_text = get_visual_selection() }) end,
   { desc = "[P]roject [G]rep" })

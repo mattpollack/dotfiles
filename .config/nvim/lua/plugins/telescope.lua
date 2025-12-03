@@ -63,6 +63,13 @@ return {
           file_ignore_patterns = {
             "node_modules"
           }
+        },
+        pickers = {
+          find_files = {
+            hidden = true,
+            -- Use git_files when in a git repo to respect .gitignore
+            find_command = { "rg", "--files", "--hidden", "--glob", "!.git" },
+          },
         }
       })
       telescope.load_extension("live_grep_args")
