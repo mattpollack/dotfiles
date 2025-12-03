@@ -22,7 +22,28 @@ vim.api.nvim_create_user_command('Open',
 
 vim.api.nvim_create_user_command('Blame', function()
   local file_path = vim.fn.expand('%:p')
-  local git_remote = vim.fn.system('git config --get remote.origin.url'):gsub('\n', '')
+
+  -- Find the nearest .git directory by traversing up from the current file
+  local function find_git_root(path)
+    local current_dir = vim.fn.fnamemodify(path, ':h')
+    while current_dir ~= '/' do
+      local git_dir = current_dir .. '/.git'
+      if vim.fn.isdirectory(git_dir) == 1 then
+        return current_dir
+      end
+      current_dir = vim.fn.fnamemodify(current_dir, ':h')
+    end
+    return nil
+  end
+
+  local git_root = find_git_root(file_path)
+  if not git_root then
+    vim.api.nvim_err_writeln('Could not find .git directory in parent directories.')
+    return
+  end
+
+  -- Run git commands from the git root directory
+  local git_remote = vim.fn.system('cd "' .. git_root .. '" && git config --get remote.origin.url'):gsub('\n', '')
   local repo_url = git_remote:match('github.com[:/](.+)%.git$')
   if not repo_url then
     vim.api.nvim_err_writeln('Could not determine GitHub repository URL.')
@@ -30,95 +51,21 @@ vim.api.nvim_create_user_command('Blame', function()
   end
 
   local branch = 'main'
-  if vim.fn.system('git show-ref --verify refs/heads/master'):gsub('\n', '') ~= '' then
+  local master_check = vim.fn.system('cd "' .. git_root .. '" && git show-ref --verify refs/heads/master'):gsub('\n', '')
+  if master_check ~= '' then
     branch = 'master'
   end
 
-  local relative_path = vim.fn.fnamemodify(file_path, ':~:.')
+  -- Get relative path from the git root
+  local relative_path = vim.fn.substitute(file_path, '^' .. vim.fn.escape(git_root, '/') .. '/', '', '')
   local line_number = vim.fn.line('.')
   local github_url = 'https://github.com/' ..
       repo_url .. '/blame/' .. branch .. '/' .. relative_path .. '#L' .. line_number
   vim.fn.system({ 'open', github_url })
 end, { desc = 'Open current file in GitHub' })
 
-vim.api.nvim_create_user_command('InsertOpenBuffers', function()
-  local chat = require("codecompanion").chat()
 
-  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-    if vim.api.nvim_buf_is_loaded(buf) and vim.api.nvim_buf_get_option(buf, 'buftype') == '' then
-      local file_path = vim.api.nvim_buf_get_name(buf)
-      local cwd = vim.fn.getcwd()
-      local relative_path = vim.fn.fnamemodify(file_path, ":." .. cwd)
 
-      if relative_path ~= '' and vim.fn.filereadable(relative_path) == 1 then
-        chat.references:add({
-          id = '<file>' .. relative_path .. '</file>',
-          path = relative_path,
-          source = "codecompanion.strategies.chat.slash_commands.file",
-          opts = {
-            pinned = true,
-            watched = false,
-            visible = true,
-          }
-        })
-      end
-    end
-  end
-end, {})
-
-vim.api.nvim_create_user_command('InsertQuickfixFiles', function()
-  local chat = require("codecompanion").chat()
-  local qf_list = vim.fn.getqflist()
-  local added_files = {}
-
-  for _, item in ipairs(qf_list) do
-    local bufnr = item.bufnr
-    if bufnr > 0 then
-      local file_path = vim.api.nvim_buf_get_name(bufnr)
-      local cwd = vim.fn.getcwd()
-      local relative_path = vim.fn.fnamemodify(file_path, ":." .. cwd)
-
-      if not added_files[relative_path] and relative_path ~= '' and vim.fn.filereadable(relative_path) == 1 then
-        chat.references:add({
-          id = '<file>' .. relative_path .. '</file>',
-          path = relative_path,
-          source = "codecompanion.strategies.chat.slash_commands.file",
-          opts = {
-            pinned = true,
-            watched = false,
-            visible = true,
-          }
-        })
-        added_files[relative_path] = true
-      end
-    end
-  end
-end, {})
-
-vim.api.nvim_create_user_command('InsertHarpoonFiles', function()
-  local chat = require("codecompanion").chat()
-  local harpoon = require("harpoon")
-  local harpoon_list = harpoon:list()
-
-  for _, item in ipairs(harpoon_list.items) do
-    local file_path = item.value
-    local cwd = vim.fn.getcwd()
-    local relative_path = vim.fn.fnamemodify(file_path, ":." .. cwd)
-
-    if relative_path ~= '' and vim.fn.filereadable(relative_path) == 1 then
-      chat.references:add({
-        id = '<file>' .. relative_path .. '</file>',
-        path = relative_path,
-        source = "codecompanion.strategies.chat.slash_commands.file",
-        opts = {
-          pinned = true,
-          watched = false,
-          visible = true,
-        }
-      })
-    end
-  end
-end, {})
 
 local function open_visible_buffers_cursor_ide()
   local buffers = vim.fn.getbufinfo({ buflisted = true })

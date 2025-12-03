@@ -139,23 +139,6 @@ lspconfig.gdscript.setup({
   root_dir = lspconfig.util.root_pattern("project.godot"),
 })
 
--- Fennel LSP setup
-lspconfig.fennel_ls.setup({
-  on_attach = on_attach,
-  capabilities = capabilities,
-  root_dir = lspconfig.util.root_pattern(".git", "fnl"),
-  settings = {
-    fennel = {
-      workspace = {
-        library = vim.api.nvim_list_runtime_paths(),
-      },
-      diagnostics = {
-        globals = { "vim" },
-      },
-    },
-  },
-})
-
 lspconfig.ts_ls.setup({
   on_attach = on_attach,
   capabilities = capabilities,

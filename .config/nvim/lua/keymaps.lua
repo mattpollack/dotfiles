@@ -84,7 +84,6 @@ vim.keymap.set('n', '<leader>qg', ':Git mergetool<CR>', { desc = "[Q]uickfix [G]
 vim.keymap.set('n', '<leader>qc', function()
   vim.fn.setqflist({}); vim.cmd.cclose()
 end, { desc = "[Q]uickfix [C]lear" })
-vim.api.nvim_set_keymap('n', '<leader>qf', ':InsertQuickfixFiles<CR>', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<leader>qs', ':SearchToQF<CR>', { noremap = true, silent = true })
 
 -- DAP De[b]ug
@@ -102,14 +101,6 @@ local harpoon = require("harpoon")
 vim.keymap.set("n", "<leader>ha", function() harpoon:list():add() end)
 vim.keymap.set("n", "<leader>hl", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end,
   { desc = "Open harpoon window" })
-vim.api.nvim_set_keymap('n', '<leader>hf', ':InsertHarpoonFiles<CR>', { noremap = true, silent = true })
-
--- CodeCompanion
-vim.keymap.set({ "n", "v" }, "<leader>aa", "<cmd>CodeCompanionActions<cr>", { noremap = true, silent = true })
-vim.keymap.set({ "n", "v" }, "<leader>ac", "<cmd>CodeCompanionChat Toggle<cr>", { noremap = true, silent = true })
-vim.keymap.set("n", "ga", "<cmd>CodeCompanionChat Add<cr>", { noremap = true, silent = true })
-vim.keymap.set("n", "gr", "<cmd>CodeCompanionChat Reject<cr>", { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<leader>af', ':InsertOpenBuffers<CR>', { noremap = true, silent = true })
 
 -- [S]urround - Additional keymaps for surround functionality
 vim.keymap.set('n', '<leader>sr', 'ys', { desc = "[S]urround [R]egister (ys)" })

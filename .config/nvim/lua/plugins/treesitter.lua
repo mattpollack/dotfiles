@@ -5,7 +5,7 @@ return {
     config = function()
       local configs = require("nvim-treesitter.configs")
       configs.setup({
-        ensure_installed = { "lua", "go", "gdscript", "typescript", "tsx", "javascript", "fennel" },
+        ensure_installed = { "lua", "go", "gdscript", "typescript", "tsx", "javascript" },
         modules = {},
         sync_install = false,
         ignore_install = {},
