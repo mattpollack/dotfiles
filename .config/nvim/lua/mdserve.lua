@@ -85,40 +85,38 @@ local function stop_mdserve(bufnr)
   end
 end
 
-function M.setup()
-  vim.api.nvim_create_autocmd("BufEnter", {
-    pattern = "*.md",
-    callback = function()
-      local bufnr = vim.api.nvim_get_current_buf()
-      local file_path = vim.api.nvim_buf_get_name(bufnr)
-
-      if mdserve_jobs[bufnr] then
-        local info = mdserve_jobs[bufnr]
-        vim.notify('Attached to ' .. vim.fn.fnamemodify(file_path, ':t') .. ' (mdserve on port ' .. info.port .. ')',
-          vim.log.levels.INFO)
-      else
-        start_mdserve(bufnr)
-      end
-    end,
-  })
-
-  vim.api.nvim_create_autocmd("BufDelete", {
-    pattern = "*.md",
-    callback = function()
-      local bufnr = vim.api.nvim_get_current_buf()
-      stop_mdserve(bufnr)
-    end,
-  })
-
-  vim.api.nvim_create_user_command('MdServeStart', function()
+vim.api.nvim_create_autocmd("BufEnter", {
+  pattern = "*.md",
+  callback = function()
     local bufnr = vim.api.nvim_get_current_buf()
-    start_mdserve(bufnr)
-  end, { desc = 'Start mdserve for current markdown file' })
+    local file_path = vim.api.nvim_buf_get_name(bufnr)
 
-  vim.api.nvim_create_user_command('MdServeStop', function()
+    if mdserve_jobs[bufnr] then
+      local info = mdserve_jobs[bufnr]
+      vim.notify('Attached to ' .. vim.fn.fnamemodify(file_path, ':t') .. ' (mdserve on port ' .. info.port .. ')',
+        vim.log.levels.INFO)
+    else
+      start_mdserve(bufnr)
+    end
+  end,
+})
+
+vim.api.nvim_create_autocmd("BufDelete", {
+  pattern = "*.md",
+  callback = function()
     local bufnr = vim.api.nvim_get_current_buf()
     stop_mdserve(bufnr)
-  end, { desc = 'Stop mdserve for current markdown file' })
-end
+  end,
+})
+
+vim.api.nvim_create_user_command('MdServeStart', function()
+  local bufnr = vim.api.nvim_get_current_buf()
+  start_mdserve(bufnr)
+end, { desc = 'Start mdserve for current markdown file' })
+
+vim.api.nvim_create_user_command('MdServeStop', function()
+  local bufnr = vim.api.nvim_get_current_buf()
+  stop_mdserve(bufnr)
+end, { desc = 'Stop mdserve for current markdown file' })
 
 return M
