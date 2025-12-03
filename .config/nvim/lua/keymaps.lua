@@ -30,7 +30,7 @@ local builtin = require('telescope.builtin')
 local telescope = require("telescope")
 
 -- [P]ROJECT
-vim.keymap.set('n', '<leader>pl', vim.cmd.Ex, { desc = "[P]roject [L]isting" })
+vim.keymap.set('n', '<leader>pl', vim.cmd.Oil, { desc = "[P]roject [L]isting" })
 vim.keymap.set('n', '<leader>pf', builtin.find_files, { desc = "[P]roject [F]ind" })
 vim.keymap.set({ 'n', 'v' }, '<leader>pg',
   function() telescope.extensions.live_grep_args.live_grep_args({ default_text = get_visual_selection() }) end,
