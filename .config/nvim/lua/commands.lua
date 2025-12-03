@@ -158,3 +158,29 @@ vim.api.nvim_create_user_command('SearchToQF', function()
   })
   vim.cmd('copen')
 end, { desc = 'Move all search occurrences to quickfix list in active file' })
+
+vim.api.nvim_create_user_command('BufCleanup', function()
+  local closed_count = 0
+  local current_buf = vim.api.nvim_get_current_buf()
+
+  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+    if vim.api.nvim_buf_is_valid(buf) and vim.api.nvim_buf_is_loaded(buf) then
+      local is_modified = vim.api.nvim_buf_get_option(buf, 'modified')
+      local wins = vim.fn.win_findbuf(buf)
+      local is_current = buf == current_buf
+
+      if not is_modified and #wins == 0 and not is_current then
+        local success = pcall(vim.api.nvim_buf_delete, buf, { force = false })
+        if success then
+          closed_count = closed_count + 1
+        end
+      end
+    end
+  end
+
+  if closed_count > 0 then
+    vim.notify('Closed ' .. closed_count .. ' unmodified buffer(s)', vim.log.levels.INFO)
+  else
+    vim.notify('No buffers to clean up', vim.log.levels.INFO)
+  end
+end, { desc = 'Close all unmodified buffers that are not visible' })

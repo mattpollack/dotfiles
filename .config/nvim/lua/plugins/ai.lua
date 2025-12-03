@@ -19,3 +19,4 @@ return {
     enabled = not options.is_work_computer()
   },
 }
+
