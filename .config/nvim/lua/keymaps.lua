@@ -108,10 +108,14 @@ vim.keymap.set("n", "<leader>ha", function() harpoon:list():add() end)
 vim.keymap.set("n", "<leader>hl", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end,
   { desc = "Open harpoon window" })
 
--- [S]urround - Additional keymaps for surround functionality
-vim.keymap.set('n', '<leader>sr', 'ys', { desc = "[S]urround [R]egister (ys)" })
-vim.keymap.set('n', '<leader>sc', 'cs', { desc = "[S]urround [C]hange (cs)" })
-vim.keymap.set('n', '<leader>sd', 'ds', { desc = "[S]urround [D]elete (ds)" })
+-- [Z]en mode - Toggle zen mode only when there's a single buffer
+vim.keymap.set('n', '<leader>z', function()
+  require("zen-mode").toggle({
+    window = {
+      width = 0.60
+    }
+  })
+end, { desc = "[Z]en mode toggle (single buffer only)" })
 
 return {
   lsp_keymaps = lsp_keymaps
