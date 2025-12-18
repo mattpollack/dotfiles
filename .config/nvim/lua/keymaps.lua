@@ -116,6 +116,10 @@ vim.keymap.set('n', '<leader>z', function()
   })
 end, { desc = "[Z]en mode toggle (single buffer only)" })
 
+-- Tmux Auto-Balance
+vim.keymap.set('n', '<leader>tb', '<cmd>TmuxBalance<cr>', { desc = '[T]mux [B]alance panes' })
+vim.keymap.set('n', '<leader>tt', '<cmd>TmuxBalanceToggle<cr>', { desc = '[T]mux balance [T]oggle' })
+
 -- [M]CP
 vim.keymap.set('n', '<leader>m', function()
   local socket_path = '/tmp/nvim'
