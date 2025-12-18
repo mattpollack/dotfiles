@@ -105,7 +105,8 @@ vim.keymap.set('n', '<leader>bp', dap.toggle_breakpoint, { desc = "De[b]ug Break
 local harpoon = require("harpoon")
 
 vim.keymap.set("n", "<leader>ha", function() harpoon:list():add() end, { desc = "Harpoon [a]dd" })
-vim.keymap.set("n", "<leader>hl", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end, { desc = "Harpoon [l]ist" })
+vim.keymap.set("n", "<leader>hl", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end,
+  { desc = "Harpoon [l]ist" })
 
 -- [Z]en mode
 vim.keymap.set('n', '<leader>z', function()
@@ -115,10 +116,6 @@ vim.keymap.set('n', '<leader>z', function()
     }
   })
 end, { desc = "[Z]en mode toggle (single buffer only)" })
-
--- Tmux Auto-Balance
-vim.keymap.set('n', '<leader>tb', '<cmd>TmuxBalance<cr>', { desc = '[T]mux [B]alance panes' })
-vim.keymap.set('n', '<leader>tt', '<cmd>TmuxBalanceToggle<cr>', { desc = '[T]mux balance [T]oggle' })
 
 -- [M]CP
 vim.keymap.set('n', '<leader>m', function()
