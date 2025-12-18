@@ -5,9 +5,9 @@
 # Get event type
 EVENT_TYPE="$1"
 
-# Validate event type
+# Validate event type (allow all events through)
 case "$EVENT_TYPE" in
-  pane:new|pane:closed|pane:focus|window:new|window:closed|window:changed|window:renamed|window:resized|session:new|session:closed|session:changed)
+  pane:*|window:*|session:*|client:*|layout:*|alert:*|copy-mode:*|keys:*|command:*)
     # Valid event
     ;;
   *)

@@ -124,21 +124,49 @@ end
 -- Standard event names
 M.events = {
   -- pane events
-  PANE_NEW = 'pane:new',
-  PANE_CLOSED = 'pane:closed',
-  PANE_FOCUS = 'pane:focus',
+  PANE_SPLIT = 'pane:split',
+  PANE_KILLED = 'pane:killed',
+  PANE_EXITED = 'pane:exited',
+  PANE_SELECTED = 'pane:selected',
+  PANE_RESIZED = 'pane:resized',
 
   -- window events
   WINDOW_NEW = 'window:new',
-  WINDOW_CLOSED = 'window:closed',
-  WINDOW_CHANGED = 'window:changed',
+  WINDOW_SELECTED = 'window:selected',
   WINDOW_RENAMED = 'window:renamed',
   WINDOW_RESIZED = 'window:resized',
+  WINDOW_LINKED = 'window:linked',
+  WINDOW_UNLINKED = 'window:unlinked',
+  WINDOW_CHANGED = 'window:changed',
 
   -- session events
-  SESSION_NEW = 'session:new',
+  SESSION_CREATED = 'session:created',
   SESSION_CLOSED = 'session:closed',
+  SESSION_RENAMED = 'session:renamed',
   SESSION_CHANGED = 'session:changed',
+
+  -- client events
+  CLIENT_ATTACHED = 'client:attached',
+  CLIENT_DETACHED = 'client:detached',
+  CLIENT_RESIZED = 'client:resized',
+  CLIENT_FOCUS_IN = 'client:focus-in',
+  CLIENT_FOCUS_OUT = 'client:focus-out',
+  CLIENT_ACTIVE = 'client:active',
+
+  -- layout events
+  LAYOUT_SELECTED = 'layout:selected',
+
+  -- alert events
+  ALERT_ACTIVITY = 'alert:activity',
+  ALERT_BELL = 'alert:bell',
+  ALERT_SILENCE = 'alert:silence',
+
+  -- copy mode events
+  COPY_MODE_EXITED = 'copy-mode:exited',
+
+  -- other events
+  KEYS_SENT = 'keys:sent',
+  COMMAND_ERROR = 'command:error',
 }
 
 --- Create standard payload for tmux events

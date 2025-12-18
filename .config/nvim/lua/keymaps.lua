@@ -104,9 +104,8 @@ vim.keymap.set('n', '<leader>bp', dap.toggle_breakpoint, { desc = "De[b]ug Break
 -- Harpoon
 local harpoon = require("harpoon")
 
-vim.keymap.set("n", "<leader>ha", function() harpoon:list():add() end)
-vim.keymap.set("n", "<leader>hl", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end,
-  { desc = "Open harpoon window" })
+vim.keymap.set("n", "<leader>ha", function() harpoon:list():add() end, { desc = "Harpoon [a]dd" })
+vim.keymap.set("n", "<leader>hl", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end, { desc = "Harpoon [l]ist" })
 
 -- [Z]en mode
 vim.keymap.set('n', '<leader>z', function()
