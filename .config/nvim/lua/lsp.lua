@@ -3,30 +3,9 @@ local luasnip = require('luasnip')
 local keymaps = require('keymaps')
 
 local on_attach = function(client, bufnr)
-  -- Enable completion triggered by <c-x><c-o>
   vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
 
-  -- Mappings
   local opts = { noremap = true, silent = true, buffer = bufnr }
-  -- vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
-  -- vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
-  -- vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
-  -- vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
-  -- vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, opts)
-  -- vim.keymap.set('n', '<leader>wa', vim.lsp.buf.add_workspace_folder, opts)
-  -- vim.keymap.set('n', '<leader>wr', vim.lsp.buf.remove_workspace_folder, opts)
-  -- vim.keymap.set('n', '<leader>wl', function()
-  --   print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-  -- end, opts)
-  -- vim.keymap.set('n', '<leader>D', vim.lsp.buf.type_definition, opts)
-  -- vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, opts)
-  -- vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, opts)
-  -- vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
-  -- vim.keymap.set('n', '<leader>f', function()
-  --   vim.lsp.buf.format { async = true }
-  -- end, opts)
-
-  -- This doesn't seem to be working??
 
   keymaps.lsp_keymaps(opts)
 
@@ -110,7 +89,6 @@ require('Comment').setup()
 require('ts_context_commentstring').setup({ enable_autocmd = false })
 require("neodev").setup({})
 
--- Lua Language Server
 vim.lsp.config('lua_ls', {
   cmd = { 'lua-language-server' },
   filetypes = { 'lua' },
@@ -206,6 +184,18 @@ vim.lsp.config('terraformls', {
   capabilities = capabilities,
 })
 
+vim.lsp.config('bashls', {
+  cmd = { 'bash-language-server', 'start' },
+  filetypes = { "sh", "bash" },
+  root_markers = { '.git' },
+  capabilities = capabilities,
+  settings = {
+    bashIde = {
+      globPattern = "*@(.sh|.inc|.bash|.command)",
+    },
+  },
+})
+
 vim.api.nvim_create_autocmd('LspAttach', {
   callback = function(args)
     local client = vim.lsp.get_client_by_id(args.data.client_id)
@@ -221,6 +211,7 @@ vim.lsp.enable('gdscript')
 vim.lsp.enable('ts_ls')
 vim.lsp.enable('pyright')
 vim.lsp.enable('terraformls')
+vim.lsp.enable('bashls')
 
 vim.diagnostic.config({
   virtual_text = true
