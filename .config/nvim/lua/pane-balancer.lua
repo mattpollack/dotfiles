@@ -9,6 +9,10 @@ M.config = {
   enabled = true,
   auto_balance = true,
   min_pane_width = 20, -- minimum width for any pane
+  balance_threshold = 5, -- only balance if width difference > this value
+  defer_window_events = 50, -- ms to defer window events
+  defer_pane_events = 100, -- ms to defer pane events
+  defer_resize_events = 50, -- ms to defer resize events
   debug = false,
 }
 
@@ -77,10 +81,21 @@ local function get_nvim_instances_in_panes()
         nvim_panes[pane_id] = win_count
         debug_log(string.format('Current pane %s has %d vertical nvim windows', pane_id, win_count))
       else
-        -- For other panes, assume 1 window (we can't easily query other nvim instances)
-        -- TODO: Could potentially query via socket if needed
-        nvim_panes[pane_id] = 1
-        debug_log(string.format('Other nvim pane %s assumed to have 1 window', pane_id))
+        -- For other panes, try to query via socket
+        local socket = bridge.find_nvim_socket(pane_info.pid)
+        if socket then
+          local win_count = bridge.query_nvim_window_count(socket)
+          if win_count then
+            nvim_panes[pane_id] = win_count
+            debug_log(string.format('Other nvim pane %s has %d window(s) (queried)', pane_id, win_count))
+          else
+            nvim_panes[pane_id] = 1
+            debug_log(string.format('Other nvim pane %s query failed, assuming 1 window', pane_id))
+          end
+        else
+          nvim_panes[pane_id] = 1
+          debug_log(string.format('Other nvim pane %s socket not found, assuming 1 window', pane_id))
+        end
       end
     end
   end
@@ -160,11 +175,23 @@ local function balance_nvim_windows()
   local total_width = vim.o.columns
   local target_width = math.floor(total_width / #top_level_wins)
 
+  local balanced_count = 0
   for _, win_info in ipairs(top_level_wins) do
-    vim.api.nvim_win_set_width(win_info.id, target_width)
+    -- Check if resize is needed based on threshold
+    local width_diff = math.abs(win_info.width - target_width)
+    if width_diff > M.config.balance_threshold then
+      local ok, err = pcall(vim.api.nvim_win_set_width, win_info.id, target_width)
+      if not ok then
+        debug_log(string.format('Failed to resize window %d: %s', win_info.id, err))
+      else
+        balanced_count = balanced_count + 1
+      end
+    end
   end
 
-  debug_log(string.format('Balanced %d top-level windows to width %d', #top_level_wins, target_width))
+  if balanced_count > 0 then
+    debug_log(string.format('Balanced %d/%d top-level windows to width %d', balanced_count, #top_level_wins, target_width))
+  end
 end
 
 --- Resize tmux panes based on logical pane distribution
@@ -183,8 +210,29 @@ local function balance_tmux_panes(layout_info)
 
   debug_log(string.format('Total width: %d, Total logical panes: %d', total_width, total_logical))
 
+  -- Get fresh pane list to ensure we're working with current state
+  local current_panes = bridge.get_panes()
+  if not current_panes then
+    debug_log('Failed to get current pane list')
+    return
+  end
+
   -- Calculate target width for each tmux pane based on its logical pane count
   for pane_id, info in pairs(layout_info.tmux_panes) do
+    -- Verify pane still exists
+    local pane_exists = false
+    for _, pid in ipairs(current_panes) do
+      if pid == pane_id then
+        pane_exists = true
+        break
+      end
+    end
+
+    if not pane_exists then
+      debug_log(string.format('Pane %s no longer exists, skipping', pane_id))
+      goto continue
+    end
+
     local proportion = info.logical_panes / total_logical
     local target_width = math.floor(total_width * proportion)
 
@@ -201,17 +249,24 @@ local function balance_tmux_panes(layout_info)
     if pane_info and pane_info.width then
       local width_diff = target_width - pane_info.width
 
-      if math.abs(width_diff) > 2 then -- Only resize if difference is significant
-        local resize_cmd = width_diff > 0
-            and string.format('resize-pane -t %s -x %d', pane_id, target_width)
-            or string.format('resize-pane -t %s -x %d', pane_id, target_width)
-
-        bridge.tmux(resize_cmd)
-        debug_log(string.format('Resized pane %s from %d to %d', pane_id, pane_info.width, target_width))
+      if math.abs(width_diff) > M.config.balance_threshold then
+        local resize_cmd = string.format('resize-pane -t %s -x %d', pane_id, target_width)
+        local result = bridge.tmux(resize_cmd)
+        
+        if result then
+          debug_log(string.format('Resized pane %s from %d to %d', pane_id, pane_info.width, target_width))
+        else
+          debug_log(string.format('Failed to resize pane %s', pane_id))
+        end
       end
     end
+
+    ::continue::
   end
 end
+
+--- Debounce timer
+local balance_timer = nil
 
 --- Main balance function
 function M.balance()
@@ -242,6 +297,21 @@ function M.balance()
   debug_log('=== Balance complete ===')
 end
 
+--- Debounced balance function
+---@param delay number|nil Delay in ms (uses config default if nil)
+function M.balance_debounced(delay)
+  delay = delay or M.config.defer_pane_events
+  
+  if balance_timer then
+    vim.fn.timer_stop(balance_timer)
+  end
+  
+  balance_timer = vim.fn.timer_start(delay, function()
+    M.balance()
+    balance_timer = nil
+  end)
+end
+
 --- Get current layout info for debugging
 function M.get_layout_info()
   local layout = calculate_logical_panes()
@@ -268,41 +338,40 @@ local function setup_auto_balance()
       -- Defer to avoid conflicts with window creation
       vim.defer_fn(function()
         local current_top_level_count = count_vertical_windows()
-        
+
         -- Only balance if the top-level window count changed
         if current_top_level_count ~= prev_top_level_count then
-          debug_log(string.format('Top-level window count changed: %d -> %d', 
+          debug_log(string.format('Top-level window count changed: %d -> %d',
             prev_top_level_count, current_top_level_count))
           prev_top_level_count = current_top_level_count
           M.balance()
         else
           debug_log('Top-level window count unchanged, skipping balance')
         end
-      end, 50)
+      end, M.config.defer_window_events)
     end,
   })
 
   -- Balance on tmux pane events (via bridge)
   if bridge.in_tmux() then
     bridge.on('pane:split', 'pane-balancer', function()
-      vim.defer_fn(function()
-        M.balance()
-      end, 100)
+      vim.defer_fn(M.balance, M.config.defer_pane_events)
     end)
 
+    -- For pane removal, use a longer delay to ensure tmux has updated its state
     bridge.on('pane:killed', 'pane-balancer', function()
-      vim.defer_fn(function()
-        M.balance()
-      end, 100)
+      vim.defer_fn(M.balance, M.config.defer_pane_events + 50)
+    end)
+
+    bridge.on('pane:exited', 'pane-balancer', function()
+      vim.defer_fn(M.balance, M.config.defer_pane_events + 50)
     end)
 
     -- Balance on window resize
     vim.api.nvim_create_autocmd('VimResized', {
       group = vim.api.nvim_create_augroup('PaneBalancerResize', { clear = true }),
       callback = function()
-        vim.defer_fn(function()
-          M.balance()
-        end, 50)
+        vim.defer_fn(M.balance, M.config.defer_resize_events)
       end,
     })
   end
@@ -330,7 +399,19 @@ function M.setup(opts)
   vim.api.nvim_create_user_command('PaneBalanceDebug', function()
     M.config.debug = not M.config.debug
     print('Pane balancer debug:', M.config.debug and 'enabled' or 'disabled')
+    if M.config.debug then
+      print('Debug messages will appear in :messages')
+    end
   end, { desc = 'Toggle pane balancer debug logging' })
+
+  vim.api.nvim_create_user_command('PaneBalanceTest', function()
+    print('Testing pane balancer...')
+    local old_debug = M.config.debug
+    M.config.debug = true
+    M.balance()
+    M.config.debug = old_debug
+    print('Check :messages for debug output')
+  end, { desc = 'Test pane balancer with debug output' })
 
   -- Setup auto-balancing
   setup_auto_balance()

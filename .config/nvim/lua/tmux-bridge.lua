@@ -97,12 +97,22 @@ function M.get_pane_info(pane_id)
   if not output then return nil end
 
   local parts = vim.split(vim.trim(output), '|')
+  
+  -- Validate we got all expected parts
+  if #parts < 5 then
+    vim.notify(
+      string.format('[tmux-bridge] Invalid pane info format: expected 5 parts, got %d', #parts),
+      vim.log.levels.WARN
+    )
+    return nil
+  end
+  
   return {
     id = parts[1],
-    width = tonumber(parts[2]),
-    height = tonumber(parts[3]),
-    pid = tonumber(parts[4]),
-    command = parts[5],
+    width = tonumber(parts[2]) or 0,
+    height = tonumber(parts[3]) or 0,
+    pid = tonumber(parts[4]) or 0,
+    command = parts[5] or '',
   }
 end
 
@@ -118,6 +128,74 @@ function M.get_window_size()
       height = tonumber(vim.trim(height)),
     }
   end
+  return nil
+end
+
+--- Find nvim socket for a given PID
+---@param pid number The process ID
+---@return string|nil socket_path
+function M.find_nvim_socket(pid)
+  local socket_name = string.format('nvim.%d.0', pid)
+  
+  -- Try $TMPDIR first (macOS default)
+  local tmpdir = vim.env.TMPDIR or '/tmp'
+  local cmd = string.format("find '%s' -maxdepth 3 -name '%s' -type s 2>/dev/null | head -1", tmpdir, socket_name)
+  local result = vim.fn.system(cmd)
+  
+  if vim.v.shell_error == 0 and result and result ~= '' then
+    return vim.trim(result)
+  end
+  
+  -- Try /tmp as fallback
+  if tmpdir ~= '/tmp' then
+    cmd = string.format("find /tmp -maxdepth 3 -name '%s' -type s 2>/dev/null | head -1", socket_name)
+    result = vim.fn.system(cmd)
+    
+    if vim.v.shell_error == 0 and result and result ~= '' then
+      return vim.trim(result)
+    end
+  end
+  
+  return nil
+end
+
+--- Query window count from another nvim instance via socket
+---@param socket_path string The socket path
+---@return number|nil window_count
+function M.query_nvim_window_count(socket_path)
+  if not socket_path or socket_path == '' then
+    return nil
+  end
+  
+  -- Use a temporary file to get the result
+  local tmp_file = vim.fn.tempname()
+  local lua_cmd = string.format(
+    "lua local wins = vim.api.nvim_list_wins(); local count = 0; " ..
+    "for _, win in ipairs(wins) do " ..
+    "local config = vim.api.nvim_win_get_config(win); " ..
+    "if config.relative == '' then " ..
+    "local pos = vim.api.nvim_win_get_position(win); " ..
+    "if pos[1] == 0 then count = count + 1 end end end; " ..
+    "local f = io.open('%s', 'w'); f:write(tostring(count)); f:close()",
+    tmp_file
+  )
+  
+  local cmd = string.format(
+    "nvim --server '%s' --remote-send '<Cmd>%s<CR>' 2>/dev/null",
+    socket_path, lua_cmd
+  )
+  
+  vim.fn.system(cmd)
+  
+  -- Wait a bit for the command to execute
+  vim.wait(100, function() return vim.fn.filereadable(tmp_file) == 1 end)
+  
+  if vim.fn.filereadable(tmp_file) == 1 then
+    local content = vim.fn.readfile(tmp_file)[1]
+    vim.fn.delete(tmp_file)
+    return tonumber(content)
+  end
+  
   return nil
 end
 
@@ -174,7 +252,10 @@ M.events = {
 local function create_tmux_payload()
   return {
     pane_info = M.get_pane_info(),
+    window_size = M.get_window_size(),
+    all_panes = M.get_panes(),
     timestamp = os.time(),
+    timestamp_ms = vim.loop.now(),
   }
 end
 
