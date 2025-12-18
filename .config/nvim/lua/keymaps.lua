@@ -108,7 +108,7 @@ vim.keymap.set("n", "<leader>ha", function() harpoon:list():add() end)
 vim.keymap.set("n", "<leader>hl", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end,
   { desc = "Open harpoon window" })
 
--- [Z]en mode - Toggle zen mode only when there's a single buffer
+-- [Z]en mode
 vim.keymap.set('n', '<leader>z', function()
   require("zen-mode").toggle({
     window = {
@@ -116,6 +116,37 @@ vim.keymap.set('n', '<leader>z', function()
     }
   })
 end, { desc = "[Z]en mode toggle (single buffer only)" })
+
+-- [M]CP
+vim.keymap.set('n', '<leader>m', function()
+  local socket_path = '/tmp/nvim'
+  local servers = vim.fn.serverlist()
+  local is_running = false
+
+  -- Because server list's return type isn't consistent
+  if type(servers) == 'string' then
+    is_running = (servers == socket_path)
+  elseif type(servers) == 'table' then
+    for _, server in ipairs(servers) do
+      if server == socket_path then
+        is_running = true
+        break
+      end
+    end
+  end
+
+  -- Toggle running / stopping
+  if is_running then
+    vim.fn.serverstop(socket_path)
+    vim.notify('Neovim MCP server stopped', vim.log.levels.INFO)
+  else
+    if vim.fn.serverstart(socket_path) == '' then
+      vim.notify('Failed to start Neovim server on ' .. socket_path, vim.log.levels.WARN)
+    else
+      vim.notify('Neovim MCP server listening on ' .. socket_path, vim.log.levels.INFO)
+    end
+  end
+end, { desc = "[M]CP Toggle Server" })
 
 return {
   lsp_keymaps = lsp_keymaps
