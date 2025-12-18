@@ -56,12 +56,6 @@ function M.get_pane_id()
   return vim.env.TMUX_PANE
 end
 
---- Get this Neovim's server address
----@return string
-function M.get_server()
-  return vim.v.servername
-end
-
 --- Execute a tmux command and return output
 ---@param cmd string The tmux command
 ---@return string|nil output
@@ -112,41 +106,6 @@ function M.get_pane_info(pane_id)
   }
 end
 
---- Get Neovim socket for a specific pane
----@param pane_id string The pane ID
----@return string|nil socket path
-function M.get_pane_nvim_socket(pane_id)
-  local pane_info = M.get_pane_info(pane_id)
-  if not pane_info or not pane_info.command:match('nvim') then
-    return nil
-  end
-
-  -- Find socket by checking TMUX_PANE environment variable
-  -- Check both /tmp and /var/folders for macOS compatibility
-  local cmd = string.format([[
-    for socket_dir in $(find /tmp /var/folders -type d -name "nvim.*" 2>/dev/null); do
-      for socket_subdir in "$socket_dir"/*; do
-        [ -d "$socket_subdir" ] || continue
-        for socket in "$socket_subdir"/*; do
-          [ -S "$socket" ] || continue
-          pane=$(nvim --server "$socket" --remote-expr "vim.env.TMUX_PANE" 2>/dev/null)
-          if [ "$pane" = "%s" ]; then
-            echo "$socket"
-            exit 0
-          fi
-        done
-      done
-    done
-  ]], pane_id)
-
-  local result = vim.fn.system(cmd)
-  if vim.v.shell_error == 0 and result ~= '' then
-    return vim.trim(result)
-  end
-
-  return nil
-end
-
 --- Get current window dimensions
 ---@return table|nil
 function M.get_window_size()
@@ -162,76 +121,21 @@ function M.get_window_size()
   return nil
 end
 
--- ============================================================================
--- NEOVIM QUERY API
--- ============================================================================
-
---- Get current Neovim window layout
----@return table
-function M.get_layout()
-  local wins = vim.api.nvim_tabpage_list_wins(0)
-  local windows = {}
-
-  for _, win in ipairs(wins) do
-    local config = vim.api.nvim_win_get_config(win)
-    table.insert(windows, {
-      id = win,
-      width = vim.api.nvim_win_get_width(win),
-      height = vim.api.nvim_win_get_height(win),
-      floating = config.relative ~= '',
-    })
-  end
-
-  return {
-    count = #wins,
-    windows = windows,
-  }
-end
-
--- ============================================================================
--- REMOTE COMMUNICATION
--- ============================================================================
-
---- Send command to another Neovim instance
----@param server string The server socket path
----@param cmd string The Vim command to execute
----@return boolean success
-function M.remote_send(server, cmd)
-  local result = vim.fn.system(string.format("nvim --server '%s' --remote-send '%s'", server, cmd))
-  return vim.v.shell_error == 0
-end
-
---- Evaluate expression in another Neovim instance
----@param server string The server socket path
----@param expr string The expression to evaluate
----@return string|nil result
-function M.remote_expr(server, expr)
-  local result = vim.fn.system(string.format("nvim --server '%s' --remote-expr '%s'", server, expr))
-  if vim.v.shell_error == 0 then
-    return result
-  end
-  return nil
-end
-
--- ============================================================================
--- STANDARD EVENTS
--- ============================================================================
-
--- Standard event names (tmux events only)
+-- Standard event names
 M.events = {
-  -- tmux pane events
+  -- pane events
   PANE_NEW = 'pane:new',
   PANE_CLOSED = 'pane:closed',
   PANE_FOCUS = 'pane:focus',
 
-  -- tmux window events
+  -- window events
   WINDOW_NEW = 'window:new',
   WINDOW_CLOSED = 'window:closed',
   WINDOW_CHANGED = 'window:changed',
   WINDOW_RENAMED = 'window:renamed',
   WINDOW_RESIZED = 'window:resized',
 
-  -- tmux session events
+  -- session events
   SESSION_NEW = 'session:new',
   SESSION_CLOSED = 'session:closed',
   SESSION_CHANGED = 'session:changed',
@@ -241,9 +145,7 @@ M.events = {
 ---@return table
 local function create_tmux_payload()
   return {
-    panes = M.get_panes(),
     pane_info = M.get_pane_info(),
-    window_size = M.get_window_size(),
     timestamp = os.time(),
   }
 end
@@ -261,8 +163,6 @@ local function initialize()
     local info = {
       in_tmux = M.in_tmux(),
       pane_id = M.get_pane_id(),
-      server = M.get_server(),
-      layout = M.get_layout(),
       panes = M.get_panes(),
       handlers = vim.tbl_keys(M.handlers),
     }
