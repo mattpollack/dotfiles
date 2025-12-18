@@ -20,6 +20,12 @@ require('lsp')
 require('mdserve')
 require('tmux-bridge')
 
+-- Initialize clustering
+local cluster = require('nvim-clustering')
+cluster.setup({
+  debug = false, -- Set to true for debugging
+})
+
 -- Initialize pane balancer
 local pane_balancer = require('pane-balancer')
 pane_balancer.setup({
