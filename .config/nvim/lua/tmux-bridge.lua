@@ -9,7 +9,6 @@ M.handlers = {}
 ---@param handler_id string Unique identifier for this handler
 ---@param handler function The handler function(payload)
 function M.on(event_name, handler_id, handler)
-  initialize()
   if not M.handlers[event_name] then
     M.handlers[event_name] = {}
   end
@@ -45,10 +44,6 @@ function M.emit(event_name, payload)
   end
 end
 
--- ============================================================================
--- ENVIRONMENT DETECTION
--- ============================================================================
-
 --- Check if running inside tmux
 ---@return boolean
 function M.in_tmux()
@@ -66,10 +61,6 @@ end
 function M.get_server()
   return vim.v.servername
 end
-
--- ============================================================================
--- TMUX QUERY API
--- ============================================================================
 
 --- Execute a tmux command and return output
 ---@param cmd string The tmux command
@@ -226,29 +217,25 @@ end
 -- STANDARD EVENTS
 -- ============================================================================
 
--- Standard event names
+-- Standard event names (tmux events only)
 M.events = {
-  -- Neovim events
-  NVIM_WIN_NEW = 'nvim:win:new',
-  NVIM_WIN_CLOSED = 'nvim:win:closed',
-  NVIM_BUF_ENTER = 'nvim:buf:enter',
+  -- tmux pane events
+  PANE_NEW = 'pane:new',
+  PANE_CLOSED = 'pane:closed',
+  PANE_FOCUS = 'pane:focus',
 
-  -- tmux events
-  TMUX_PANE_NEW = 'tmux:pane:new',
-  TMUX_PANE_CLOSED = 'tmux:pane:closed',
-  TMUX_WINDOW_CHANGED = 'tmux:window:changed',
+  -- tmux window events
+  WINDOW_NEW = 'window:new',
+  WINDOW_CLOSED = 'window:closed',
+  WINDOW_CHANGED = 'window:changed',
+  WINDOW_RENAMED = 'window:renamed',
+  WINDOW_RESIZED = 'window:resized',
+
+  -- tmux session events
+  SESSION_NEW = 'session:new',
+  SESSION_CLOSED = 'session:closed',
+  SESSION_CHANGED = 'session:changed',
 }
-
---- Create standard payload for Neovim window events
----@return table
-local function create_nvim_payload()
-  return {
-    server = M.get_server(),
-    pane_id = M.get_pane_id(),
-    layout = M.get_layout(),
-    timestamp = os.time(),
-  }
-end
 
 --- Create standard payload for tmux events
 ---@return table
@@ -261,41 +248,13 @@ local function create_tmux_payload()
   }
 end
 
--- ============================================================================
--- SETUP & INITIALIZATION
--- ============================================================================
-
---- Initialize the bridge (called automatically when needed)
+--- Initialize the bridge
 local function initialize()
   if M._initialized or not M.in_tmux() then
     return
   end
 
   M._initialized = true
-
-  -- Set up Neovim autocmds to emit events
-  local group = vim.api.nvim_create_augroup('TmuxBridge', { clear = true })
-
-  vim.api.nvim_create_autocmd('WinNew', {
-    group = group,
-    callback = function()
-      M.emit(M.events.NVIM_WIN_NEW, create_nvim_payload())
-    end,
-  })
-
-  vim.api.nvim_create_autocmd('WinClosed', {
-    group = group,
-    callback = function()
-      M.emit(M.events.NVIM_WIN_CLOSED, create_nvim_payload())
-    end,
-  })
-
-  vim.api.nvim_create_autocmd('BufEnter', {
-    group = group,
-    callback = function()
-      M.emit(M.events.NVIM_BUF_ENTER, create_nvim_payload())
-    end,
-  })
 
   -- Create user commands
   vim.api.nvim_create_user_command('TmuxBridgeInfo', function()
@@ -309,40 +268,16 @@ local function initialize()
     }
     print(vim.inspect(info))
   end, {})
-
-  vim.api.nvim_create_user_command('TmuxBridgeHandlers', function()
-    print('Registered event handlers:')
-    for event, handlers in pairs(M.handlers) do
-      print(string.format('  %s:', event))
-      for id, _ in pairs(handlers) do
-        print(string.format('    - %s', id))
-      end
-    end
-  end, {})
-
-  vim.api.nvim_create_user_command('TmuxBridgeTestPaneNew', function()
-    M.handle_pane_new()
-  end, { desc = 'Manually trigger pane new event for testing' })
 end
 
--- ============================================================================
--- EXTERNAL ENTRY POINTS (called from tmux hooks)
--- ============================================================================
-
---- Handle tmux pane creation (called from tmux hook)
-function M.handle_pane_new()
-  initialize()
+--- Single entry point for all tmux hook events
+---@param event_type string The event type from the hook script (e.g., "pane:new")
+function M._emit_from_hook(event_type)
   vim.schedule(function()
-    M.emit(M.events.TMUX_PANE_NEW, create_tmux_payload())
+    M.emit(event_type, create_tmux_payload())
   end)
 end
 
---- Handle tmux pane close (called from tmux hook)
-function M.handle_pane_closed()
-  initialize()
-  vim.schedule(function()
-    M.emit(M.events.TMUX_PANE_CLOSED, create_tmux_payload())
-  end)
-end
+initialize()
 
 return M

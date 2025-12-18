@@ -5,13 +5,10 @@
 # Get event type
 EVENT_TYPE="$1"
 
-# Map event to bridge function
+# Validate event type
 case "$EVENT_TYPE" in
-  new)
-    BRIDGE_FUNC="handle_pane_new"
-    ;;
-  closed)
-    BRIDGE_FUNC="handle_pane_closed"
+  pane:new|pane:closed|pane:focus|window:new|window:closed|window:changed|window:renamed|window:resized|session:new|session:closed|session:changed)
+    # Valid event
     ;;
   *)
     exit 0
@@ -38,11 +35,11 @@ for PANE_ID in $PANES; do
           for socket in "$socket_subdir"/*; do
             if [ -S "$socket" ]; then
               # Check if this socket belongs to this pane
-              SOCKET_PANE=$(/opt/homebrew/bin/nvim --server "$socket" --remote-expr "vim.env.TMUX_PANE" 2>/dev/null)
+              SOCKET_PANE=$(nvim --server "$socket" --remote-expr "vim.env.TMUX_PANE" 2>/dev/null)
               if [ "$SOCKET_PANE" = "$PANE_ID" ]; then
-                # Send event to Neovim
-                /opt/homebrew/bin/nvim --server "$socket" \
-                   --remote-send "<Esc>:lua require('tmux-bridge').$BRIDGE_FUNC()<CR>" 2>/dev/null
+                # Send event to Neovim - directly emit the event
+                nvim --server "$socket" \
+                   --remote-send "<Esc>:lua require('tmux-bridge')._emit_from_hook('$EVENT_TYPE')<CR>" 2>/dev/null
               fi
             fi
           done
