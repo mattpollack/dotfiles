@@ -1,6 +1,5 @@
 local M = {}
 
-M.config = {}
 M._initialized = false
 M.handlers = {}
 
@@ -136,26 +135,26 @@ end
 ---@return string|nil socket_path
 function M.find_nvim_socket(pid)
   local socket_name = string.format('nvim.%d.0', pid)
-  
+
   -- Try $TMPDIR first (macOS default)
   local tmpdir = vim.env.TMPDIR or '/tmp'
   local cmd = string.format("find '%s' -maxdepth 3 -name '%s' -type s 2>/dev/null | head -1", tmpdir, socket_name)
   local result = vim.fn.system(cmd)
-  
+
   if vim.v.shell_error == 0 and result and result ~= '' then
     return vim.trim(result)
   end
-  
+
   -- Try /tmp as fallback
   if tmpdir ~= '/tmp' then
     cmd = string.format("find /tmp -maxdepth 3 -name '%s' -type s 2>/dev/null | head -1", socket_name)
     result = vim.fn.system(cmd)
-    
+
     if vim.v.shell_error == 0 and result and result ~= '' then
       return vim.trim(result)
     end
   end
-  
+
   return nil
 end
 
@@ -166,7 +165,7 @@ function M.query_nvim_window_count(socket_path)
   if not socket_path or socket_path == '' then
     return nil
   end
-  
+
   -- Use a temporary file to get the result
   local tmp_file = vim.fn.tempname()
   local lua_cmd = string.format(
@@ -179,23 +178,21 @@ function M.query_nvim_window_count(socket_path)
     "local f = io.open('%s', 'w'); f:write(tostring(count)); f:close()",
     tmp_file
   )
-  
+
   local cmd = string.format(
     "nvim --server '%s' --remote-send '<Cmd>%s<CR>' 2>/dev/null",
     socket_path, lua_cmd
   )
-  
+
   vim.fn.system(cmd)
-  
-  -- Wait a bit for the command to execute
-  vim.wait(100, function() return vim.fn.filereadable(tmp_file) == 1 end)
-  
+
+  -- Check if file is readable (removed blocking wait for better performance)
   if vim.fn.filereadable(tmp_file) == 1 then
     local content = vim.fn.readfile(tmp_file)[1]
     vim.fn.delete(tmp_file)
     return tonumber(content)
   end
-  
+
   return nil
 end
 

@@ -13,8 +13,31 @@ local gdproject = io.open(vim.fn.getcwd() .. '/project.godot', 'r')
 
 if gdproject then
   io.close(gdproject)
-  vim.fn.serverstart '/Users/m/.config/godothost'
-  print("Listening on /godothost")
+  local server_addr = '/Users/m/.config/godothost'
+
+  -- Only start server if not already running
+  local servers = vim.fn.serverlist()
+  local already_running = false
+  for _, addr in ipairs(servers) do
+    if addr == server_addr then
+      already_running = true
+      break
+    end
+  end
+
+  if not already_running then
+    -- Try to remove stale socket if it exists
+    os.remove(server_addr)
+
+    local ok, result = pcall(vim.fn.serverstart, server_addr)
+    if ok then
+      print("Listening on " .. server_addr)
+    else
+      print("Could not start Godot server: " .. tostring(result))
+    end
+  else
+    print("Godot server already running at " .. server_addr)
+  end
 end
 
 vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
