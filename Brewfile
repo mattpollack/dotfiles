@@ -21,7 +21,7 @@ brew "tree"                     # Display directories as trees
 # Editor & Terminal
 # ============================================================================
 brew "neovim"                   # Modern Vim
-brew "tree-sitter"              # Parser generator (needed for nvim treesitter parsers)
+brew "tree-sitter-cli"          # Parser generator (needed for nvim treesitter parsers)
 brew "tmux"                     # Terminal multiplexer
 brew "oh-my-posh"               # Prompt theme engine
 cask "wezterm"                  # Terminal emulator
