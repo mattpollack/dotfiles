@@ -1,0 +1,25 @@
+# Git Configuration
+# This file contains git settings that work across all systems
+
+[user]
+    name = Matthew Pollack
+    email = matt.pck@gmail.com
+    signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO62Zu6axTAyewojIiy+vqgO4IXI0pGYp59rarl0x9gM
+
+[gpg]
+    format = ssh
+
+[gpg "ssh"]
+    program = /opt/1Password/op-ssh-sign
+
+[commit]
+    gpgsign = false
+
+[url "git@github.com:"]
+    insteadOf = https://github.com/
+
+[init]
+    defaultBranch = main
+
+[pull]
+    rebase = false

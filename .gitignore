@@ -1,8 +1,7 @@
-*
-!.gitignore
-!.config/tmux/*
-!.config/nvim/*
-!.config/aerospace/*
-!.config/wezterm/*
-!init.sh
-!README.md
+# OS
+.DS_Store
+*.swp
+*.swo
+
+# Tmux plugins managed by TPM at runtime
+config/tmux/plugins/

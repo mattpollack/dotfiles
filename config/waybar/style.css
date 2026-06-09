@@ -1,0 +1,145 @@
+@import "../shared/style-sheets/catppuccin-mocha.css";
+
+* {
+    border: none;
+    font-family: Noto Sans;
+    font-size: 14px;
+    color: @text;
+    border-radius: 10px;
+    transition: color 0.4s ease;
+}
+
+window#waybar {
+    background: transparent;
+    margin: 0px 4px;
+}
+
+/* TODO: Add alerting CSS */
+
+.modules-center {
+    margin-right: 8px;
+    margin-left: 8px;
+}
+
+tooltip {
+    background: @mantle;
+    margin: 10px;
+}
+
+/* Workspaces */
+#workspaces button {
+    all: initial;
+    padding: 0 6px;
+    margin: 0 1.5px;
+    min-width: 9px;
+    background: @base;
+}
+
+#workspaces button.empty {
+    opacity: 0.5;
+}
+
+/* Tray */
+#tray menu {
+    background: @mantle;
+    margin: 10px;
+}
+
+#tray menu menuitem {
+    border-radius: 0px;
+}
+
+#tray menu menuitem:hover {
+    background: @surface0;
+    border-radius: 10px;
+}
+
+#tray menu separator {
+    min-height: 2px;
+    border-radius: 0px;
+    background-color: @crust;
+}
+
+/* Everything else */
+#clock {
+    font-weight: bold;
+    margin: 0px 10px;
+    padding: 0px 10px;
+    font-family: Symbols Nerd Font;
+    background: @base;
+}
+
+#custom-playerctl,
+#workspaces {
+    margin: 0px 6px;
+    padding: 0px 10px;
+    background: @base;
+}
+
+#cpu,
+#network,
+#battery,
+#bluetooth,
+#pulseaudio,
+#tray,
+#custom-launcher,
+#custom-notification,
+#custom-power {
+    margin: 0px 6px;
+    font-size: 18px;
+    font-family: Symbols Nerd Font;
+    padding: 0px 10px;
+    background: @base;
+}
+
+/* Hover effects */
+#tray:hover,
+#custom-playerctl:hover {
+    background: @mantle;
+}
+
+#workspaces button:hover {
+    border-radius: 5px;
+    background: @overlay0;
+}
+
+#clock:hover {
+    color: @rosewater;
+    background: @mantle;
+}
+
+#cpu:hover {
+    color: @green;
+    background: @mantle;
+}
+
+#network:hover {
+    color: @lavender;
+    background: @mantle;
+}
+
+#pulseaudio:hover {
+    color: @yellow;
+    background: @mantle;
+}
+
+#battery:hover {
+    color: @green;
+    background: @mantle;
+}
+
+#custom-power:hover {
+    color: @red;
+    background: @mantle;
+}
+
+#custom-notification:hover {
+    color: @yellow;
+    background: @mantle;
+}
+
+#custom-launcher:hover,
+#bluetooth:hover {
+    color: @blue;
+    background: @mantle;
+}
