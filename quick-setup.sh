@@ -1,5 +1,5 @@
 #!/bin/bash
-# Quick setup - symlink dotfiles without Nix/Home Manager
+# Full macOS bootstrap - installs Homebrew, packages, and symlinks dotfiles
 
 set -e
 
@@ -8,6 +8,38 @@ DOTFILES_DIR="$SCRIPT_DIR"
 
 echo "Quick dotfiles setup"
 echo "===================="
+echo ""
+
+# ============================================================================
+# Homebrew
+# ============================================================================
+
+echo "Checking Homebrew..."
+echo ""
+
+if [[ "$(uname -m)" == "arm64" ]]; then
+    BREW_PREFIX="/opt/homebrew"
+else
+    BREW_PREFIX="/usr/local"
+fi
+
+if ! command -v brew &>/dev/null; then
+    echo "  Installing Homebrew..."
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    eval "$($BREW_PREFIX/bin/brew shellenv)"
+    echo ""
+else
+    echo "  Homebrew already installed"
+    echo ""
+fi
+
+# ============================================================================
+# Packages
+# ============================================================================
+
+echo "Installing packages from Brewfile..."
+echo ""
+brew bundle --file="$SCRIPT_DIR/Brewfile"
 echo ""
 
 # ============================================================================

@@ -1,9 +1,5 @@
 # Brewfile for macOS
-# Install with: brew bundle --file=~/home-manager/Brewfile
-#
-# This file lists all the packages needed for a fresh macOS setup
-# without Nix/home-manager. Use this in combination with quick-setup.sh
-# to set up your development environment.
+# Installed automatically by quick-setup.sh
 
 # ============================================================================
 # Core Development Tools

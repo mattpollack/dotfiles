@@ -12,14 +12,10 @@ config/     → symlinked to ~/.config/   (nvim/, tmux/, wezterm/, git/, ...)
 ## Quick setup (macOS, no Nix)
 
 ```bash
-# Install packages
-brew bundle
-
-# Symlink dotfiles and install tmux plugins
 ./quick-setup.sh
 ```
 
-After running: `source ~/.zshrc`, then in Neovim `:Lazy sync`.
+Installs Homebrew (if absent), runs `brew bundle`, symlinks dotfiles, and sets up tmux plugins. After running: `source ~/.zshrc`, then in Neovim `:Lazy sync`.
 
 ## Nix users
 
