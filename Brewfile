@@ -53,7 +53,8 @@ brew "git-lfs"                  # Git Large File Storage
 # ============================================================================
 # macOS-Specific Applications
 # ============================================================================
-cask "aerospace"                # Tiling window manager for macOS
+tap "nikitabobko/tap"
+cask "nikitabobko/tap/aerospace" # Tiling window manager for macOS
 cask "1password-cli"            # Password manager CLI
 
 # ============================================================================
