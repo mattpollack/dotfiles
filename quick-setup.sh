@@ -37,6 +37,11 @@ fi
 # Packages
 # ============================================================================
 
+echo "Trusting third-party Homebrew taps..."
+echo ""
+brew trust jetbrains/utils
+echo ""
+
 echo "Installing packages from Brewfile..."
 echo ""
 brew bundle --file="$SCRIPT_DIR/Brewfile"

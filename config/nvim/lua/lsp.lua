@@ -125,21 +125,12 @@ vim.lsp.config('omnisharp', {
   },
 })
 
-vim.lsp.config('kotlin_language_server', {
-  cmd = { 'kotlin-language-server' },
+vim.lsp.config('kotlin_lsp', {
+  cmd = { 'kotlin-lsp', '--stdio' },
   filetypes = { 'kotlin' },
-  root_markers = { 'settings.gradle', 'settings.gradle.kts', 'build.xml', 'pom.xml', 'build.gradle', 'build.gradle.kts' },
+  root_markers = { 'settings.gradle', 'settings.gradle.kts', 'build.gradle', 'build.gradle.kts', 'pom.xml' },
   capabilities = capabilities,
-  init_options = {
-    storagePath = vim.fn.stdpath('cache') .. '/kotlin_language_server',
-  },
-  settings = {
-    kotlin = {
-      compiler = {
-        jvm = { target = '17' },
-      },
-    },
-  },
+  single_file_support = false,
 })
 
 vim.lsp.config('eslint', {
@@ -172,7 +163,7 @@ vim.lsp.enable('pyright')
 vim.lsp.enable('terraformls')
 vim.lsp.enable('bashls')
 vim.lsp.enable('omnisharp')
-vim.lsp.enable('kotlin_language_server')
+vim.lsp.enable('kotlin_lsp')
 vim.lsp.enable('eslint')
 
 vim.diagnostic.config({

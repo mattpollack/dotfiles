@@ -58,6 +58,8 @@ brew "git-lfs"                  # Git Large File Storage
 # ============================================================================
 tap "nikitabobko/tap"
 cask "nikitabobko/tap/aerospace" # Tiling window manager for macOS
+tap "jetbrains/utils"
+brew "jetbrains/utils/kotlin-lsp" # JetBrains Kotlin LSP (replaces deprecated kotlin-language-server)
 cask "1password-cli"            # Password manager CLI
 
 # ============================================================================
