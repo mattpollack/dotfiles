@@ -18,14 +18,8 @@ vim.pack.add({
 
   -- LSP and completion plugins
   { src = "https://github.com/neovim/nvim-lspconfig" },
-  { src = "https://github.com/folke/neodev.nvim" },
-  { src = "https://github.com/hrsh7th/nvim-cmp" },
-  { src = "https://github.com/hrsh7th/cmp-nvim-lsp" },
-  { src = "https://github.com/hrsh7th/cmp-buffer" },
-  { src = "https://github.com/hrsh7th/cmp-path" },
-  { src = "https://github.com/hrsh7th/cmp-cmdline" },
-  { src = "https://github.com/L3MON4D3/LuaSnip" },
-  { src = "https://github.com/saadparwaiz1/cmp_luasnip" },
+  { src = "https://github.com/folke/lazydev.nvim" },
+  { src = "https://github.com/saghen/blink.cmp",                               version = "v1.10.2" },
 
   -- Formatter
   { src = "https://github.com/stevearc/conform.nvim" },
@@ -45,7 +39,7 @@ vim.pack.add({
   { src = "https://github.com/christoomey/vim-tmux-navigator" },
 
   -- Editor utilities
-  { src = "https://github.com/numToStr/Comment.nvim" },
+
   { src = "https://github.com/rmagatti/auto-session" },
   { src = "https://github.com/echasnovski/mini.nvim" },
   { src = "https://github.com/itchyny/vim-qfedit" },
@@ -70,13 +64,6 @@ vim.pack.add({
 -- Local plugins don't need vim.pack - they're loaded from lua/ directory automatically
 
 -- Configure plugins that need setup
--- Comment.nvim
-require('Comment').setup({
-  pre_hook = function()
-    return vim.bo.commentstring
-  end,
-})
-
 -- Auto-session
 require('auto-session').setup({
   suppressed_dirs = { '~/', '~/Projects', '~/Downloads', '/' },
@@ -84,8 +71,12 @@ require('auto-session').setup({
 
 -- Conform.nvim (formatter)
 require('conform').setup({
+  formatters = {
+    ktlint = { command = vim.fn.expand("~/.local/bin/ktlint") },
+  },
   formatters_by_ft = {
     python = { "black", "isort" },
+    kotlin = { "ktlint" },
     typescript = { "prettier" },
     typescriptreact = { "prettier" },
     javascript = { "prettier" },
@@ -95,7 +86,15 @@ require('conform').setup({
     html = { "prettier" },
     markdown = { "prettier" },
   },
-  format_on_save = { timeout_ms = 500, lsp_fallback = true },
+  format_on_save = function(bufnr)
+    if vim.bo[bufnr].filetype == "kotlin" then return nil end
+    return { timeout_ms = 500, lsp_fallback = true }
+  end,
+  format_after_save = function(bufnr)
+    if vim.bo[bufnr].filetype == "kotlin" then
+      return { lsp_fallback = false }
+    end
+  end,
 })
 vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
 
@@ -124,7 +123,8 @@ require('tree-sitter-manager').setup({
     'go',
     'gdscript',
     'lua',
-    'c_sharp'
+    'c_sharp',
+    'kotlin',
   },
   auto_install = true,
   highlight = true,

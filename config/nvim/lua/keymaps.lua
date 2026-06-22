@@ -90,7 +90,7 @@ vim.keymap.set('n', '<leader>qg', ':Git mergetool<CR>', { desc = "[Q]uickfix [G]
 vim.keymap.set('n', '<leader>qc', function()
   vim.fn.setqflist({}); vim.cmd.cclose()
 end, { desc = "[Q]uickfix [C]lear" })
-vim.api.nvim_set_keymap('n', '<leader>qs', ':SearchToQF<CR>', { noremap = true, silent = true })
+vim.keymap.set('n', '<leader>qs', ':SearchToQF<CR>', { desc = "[Q]uickfix [S]earch" })
 
 -- DAP De[b]ug
 local dap = require('dap')
@@ -178,14 +178,6 @@ vim.keymap.set('n', '<leader>tc', trace.clear_traces, { desc = "Code [T]race: [C
 --   end
 -- end, { desc = "[M]CP Toggle Server" })
 
--- [O]bsidian
-vim.keymap.set('n', '<leader>on', ':ObsidianNew<CR>', { desc = "[O]bsidian [N]ew note" })
-vim.keymap.set('n', '<leader>os', ':ObsidianSearch<CR>', { desc = "[O]bsidian [S]earch" })
-vim.keymap.set('n', '<leader>oq', ':ObsidianQuickSwitch<CR>', { desc = "[O]bsidian [Q]uick switch" })
-vim.keymap.set('n', '<leader>of', ':ObsidianFollowLink<CR>', { desc = "[O]bsidian [F]ollow link" })
-vim.keymap.set('n', '<leader>ob', ':ObsidianBacklinks<CR>', { desc = "[O]bsidian [B]acklinks" })
-vim.keymap.set('n', '<leader>ot', ':ObsidianToday<CR>', { desc = "[O]bsidian [T]oday" })
-vim.keymap.set('n', '<leader>oo', ':ObsidianOpen<CR>', { desc = "[O]bsidian [O]pen in app" })
 
 return {
   lsp_keymaps = lsp_keymaps

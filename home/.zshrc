@@ -22,6 +22,12 @@ setopt HIST_EXPIRE_DUPS_FIRST  # Expire duplicates first when trimming
 bindkey '^R' history-incremental-search-backward
 bindkey '^S' history-incremental-search-forward
 
+# Edit current command line in nvim (Ctrl+X Ctrl+E)
+autoload -Uz edit-command-line
+zle -N edit-command-line
+bindkey '\ee' edit-command-line
+export VISUAL=nvim
+
 # ============================================================================
 # Aliases
 # ============================================================================
@@ -37,7 +43,7 @@ alias vim='nvim'
 # Development
 alias nr='npm run'
 alias gp='git push origin HEAD'
-alias python=python3
+alias python=python3.11
 # alias pip=/usr/bin/pip3
 
 # Navigation
@@ -84,3 +90,11 @@ add_to_path "/usr/local/bin"
 add_to_path "/Applications/Godot.app/Contents/MacOS"
 add_to_path "/Applications/Blender.app/Contents/MacOS"
 add_to_path "$HOME/.local/bin"
+export PATH="$HOME/.local/bin:$PATH"
+
+# BOOMERANG SPECIFICS
+
+alias alumni="cd /Users/matt/repos/alumni"
+export NVM_DIR="$HOME/.nvm"
+[ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
+[ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion

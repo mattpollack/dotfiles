@@ -13,7 +13,7 @@ local gdproject = io.open(vim.fn.getcwd() .. '/project.godot', 'r')
 
 if gdproject then
   io.close(gdproject)
-  local server_addr = '/Users/m/.config/godothost'
+  local server_addr = vim.fn.expand('~/.config/godothost')
 
   -- Only start server if not already running
   local servers = vim.fn.serverlist()
@@ -56,7 +56,7 @@ vim.api.nvim_create_autocmd("WinClosed", {
       return
     end
 
-    if vim.api.nvim_buf_get_option(buf, 'modified') then
+    if vim.bo[buf].modified then
       return
     end
 

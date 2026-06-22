@@ -195,13 +195,63 @@ vim.api.nvim_create_user_command('SearchToQF', function()
   vim.cmd('copen')
 end, { desc = 'Move all search occurrences to quickfix list in active file' })
 
+local mockoon_job_id = nil
+
+vim.api.nvim_create_user_command('MockoonStart', function(opts)
+  if mockoon_job_id then
+    vim.notify('Mockoon is already running', vim.log.levels.WARN)
+    return
+  end
+
+  local data_file = opts.args ~= '' and opts.args
+    or vim.fn.findfile('BoomerangMocks.json', vim.fn.getcwd() .. ';')
+
+  if data_file == '' then
+    vim.notify('No Mockoon data file found. Pass a path or run from a project containing BoomerangMocks.json', vim.log.levels.ERROR)
+    return
+  end
+
+  mockoon_job_id = vim.fn.jobstart({ 'mockoon-cli', 'start', '--data', data_file }, {
+    on_stdout = function(_, data)
+      for _, line in ipairs(data) do
+        if line ~= '' then vim.notify('[Mockoon] ' .. line, vim.log.levels.INFO) end
+      end
+    end,
+    on_stderr = function(_, data)
+      for _, line in ipairs(data) do
+        if line ~= '' then vim.notify('[Mockoon] ' .. line, vim.log.levels.WARN) end
+      end
+    end,
+    on_exit = function(_, code)
+      mockoon_job_id = nil
+      vim.notify('Mockoon stopped (exit ' .. code .. ')', vim.log.levels.INFO)
+    end,
+  })
+
+  if mockoon_job_id <= 0 then
+    mockoon_job_id = nil
+    vim.notify('Failed to start mockoon-cli — is it installed? (npm install -g @mockoon/cli)', vim.log.levels.ERROR)
+    return
+  end
+
+  vim.notify('Mockoon started: ' .. data_file, vim.log.levels.INFO)
+end, { nargs = '?', complete = 'file', desc = 'Start Mockoon CLI mock server' })
+
+vim.api.nvim_create_user_command('MockoonStop', function()
+  if not mockoon_job_id then
+    vim.notify('Mockoon is not running', vim.log.levels.WARN)
+    return
+  end
+  vim.fn.jobstop(mockoon_job_id)
+end, { desc = 'Stop Mockoon CLI mock server' })
+
 vim.api.nvim_create_user_command('BufCleanup', function()
   local closed_count = 0
   local current_buf = vim.api.nvim_get_current_buf()
 
   for _, buf in ipairs(vim.api.nvim_list_bufs()) do
     if vim.api.nvim_buf_is_valid(buf) and vim.api.nvim_buf_is_loaded(buf) then
-      local is_modified = vim.api.nvim_buf_get_option(buf, 'modified')
+      local is_modified = vim.bo[buf].modified
       local wins = vim.fn.win_findbuf(buf)
       local is_current = buf == current_buf
 

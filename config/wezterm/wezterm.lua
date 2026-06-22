@@ -1,7 +1,7 @@
 local wezterm = require 'wezterm'
 local config = wezterm.config_builder()
 
-config.window_decorations = "NONE"
+config.window_decorations = "RESIZE"
 -- config.enable_wayland = true
 config.hide_tab_bar_if_only_one_tab = true
 config.window_background_opacity = 0.6
@@ -18,10 +18,10 @@ config.macos_window_background_blur = 100
 --   border_right_width = '0.5cell',
 --   border_bottom_height = '0.25cell',
 --   border_top_height = '0.25cell',
---   border_left_color = 'purple',
---   border_right_color = 'purple',
---   border_bottom_color = 'purple',
---   border_top_color = 'purple',
+--   border_left_color = 'green',
+--   border_right_color = 'green',
+--   border_bottom_color = 'green',
+--   border_top_color = 'green',
 -- }
 -- Ensure PATH includes common package manager locations
 -- This fixes GUI app PATH issues on macOS while staying portable

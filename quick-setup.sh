@@ -42,6 +42,11 @@ echo ""
 brew bundle --file="$SCRIPT_DIR/Brewfile"
 echo ""
 
+echo "Installing global npm packages..."
+echo ""
+npm install -g @mockoon/cli
+echo ""
+
 # ============================================================================
 # Helper Functions
 # ============================================================================

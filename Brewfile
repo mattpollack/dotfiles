@@ -31,6 +31,7 @@ cask "wezterm"                  # Terminal emulator
 # ============================================================================
 brew "cmake"                    # Cross-platform build system
 brew "ninja"                    # Small build system
+brew "gradle"
 
 # ============================================================================
 # Programming Languages & Runtimes
@@ -38,6 +39,7 @@ brew "ninja"                    # Small build system
 brew "node"                     # JavaScript runtime
 brew "python@3.14"              # Python 3
 brew "go"                       # Go programming language
+brew "kotlin"
 
 # ============================================================================
 # Container Tools
@@ -63,3 +65,4 @@ cask "1password-cli"            # Password manager CLI
 # ============================================================================
 # Uncomment if desired:
 # cask "raycast"                # Spotlight alternative
+cask "mockoon"                  # Local API mock server (GUI)

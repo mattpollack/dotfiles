@@ -12,6 +12,11 @@
       "rev": "62437532b38495551410b3f377bcf4aaac574ebe",
       "src": "https://github.com/rmagatti/auto-session"
     },
+    "blink.cmp": {
+      "rev": "78336bc89ee5365633bcf754d93df01678b5c08f",
+      "src": "https://github.com/saghen/blink.cmp",
+      "version": "'v1.10.2'"
+    },
     "cmp-buffer": {
       "rev": "b74fab3656eea9de20a9b8116afa3cfc4ec09657",
       "src": "https://github.com/hrsh7th/cmp-buffer"
@@ -56,6 +61,10 @@
     "koda.nvim": {
       "rev": "4668e307f2f3a1e38bd627b14d13368ebf5b8d9f",
       "src": "https://github.com/oskarnurm/koda.nvim"
+    },
+    "lazydev.nvim": {
+      "rev": "ff2cbcba459b637ec3fd165a2be59b7bbaeedf0d",
+      "src": "https://github.com/folke/lazydev.nvim"
     },
     "marks.nvim": {
       "rev": "f353e8c08c50f39e99a9ed474172df7eddd89b72",
